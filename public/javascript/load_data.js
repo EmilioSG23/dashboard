@@ -94,7 +94,7 @@ let cargarGraficoPrecipitacion = () => {
         };
 
         //Objeto con la instanciación del gráfico
-        let chart1  = new Chart(plotRef, config);
+        let chart  = new Chart(plotRef, config);
 
     })
     .catch(console.error);
@@ -135,7 +135,7 @@ let cargarGraficoUV = () => {
         };
 
         //Objeto con la instanciación del gráfico
-        let chart2  = new Chart(plotRef, config);
+        let chart  = new Chart(plotRef, config);
 
     })
     .catch(console.error);
@@ -177,7 +177,7 @@ let cargarGraficoTemperatura = () => {
         };
 
         //Objeto con la instanciación del gráfico
-        let chart3  = new Chart(plotRef, config);
+        let chart  = new Chart(plotRef, config);
 
     })
     .catch(console.error);
@@ -186,11 +186,13 @@ let cargarGraficoTemperatura = () => {
 
 document.getElementById("btn_precipitacion").onclick = () => {
     
+    cargarGraficoPrecipitacion();
 }
-
-cargarOpenMeteo();
+document.getElementById("btn_uv").onclick = () => {cargarGraficoUV();}
+document.getElementById("btn_temperatura").onclick = () => {cargarGraficoTemperatura();}
 
 cargarFechaActual();
+cargarGraficoPrecipitacion();
 cargarPrecipitacion();
 cargarUV();
 cargarTemperatura()
