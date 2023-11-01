@@ -56,10 +56,10 @@ let cargarTemperatura = () => {
     document.getElementById("temperaturaMaxValue").textContent = `Max ${temperaturaMax} [°C]`;
 }
 
-let cargarOpenMeteo = () => {
-    //TEMPERATURA
+let cargarGraficoPrecipitacion = () => {
+    //PRECIPITACION
     //URL que responde con la respuesta a cargar
-    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=precipitation_probability&timezone=auto';
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=precipitation_probability,precipitation&timezone=auto';
     fetch( URL )
       .then(responseText => responseText.json())
       .then(responseJSON => {
@@ -67,13 +67,14 @@ let cargarOpenMeteo = () => {
         //Respuesta en formato JSON
 
         //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot1');
+        let plotRef = document.getElementById('plot');
 
         //Etiquetas del gráfico
         let labels = responseJSON.hourly.time;
 
         //Etiquetas de los datos
-        let data = responseJSON.hourly.precipitation_probability;
+        let dataProbabilidad = responseJSON.hourly.precipitation_probability;
+        let dataPrecipitacion = responseJSON.hourly.precipitation;
 
         //Objeto de configuración del gráfico
         let config = {
@@ -83,7 +84,10 @@ let cargarOpenMeteo = () => {
                 datasets: [
                 {
                     label: 'Probabilidad de Precipitación',
-                    data: data, 
+                    data: dataProbabilidad, 
+                },{
+                    label: 'Precipitación',
+                    data: dataPrecipitacion,
                 }
                 ]
             }
@@ -94,10 +98,12 @@ let cargarOpenMeteo = () => {
 
     })
     .catch(console.error);
+}
 
+let cargarGraficoUV = () => {
     //UV
     //URL que responde con la respuesta a cargar
-    URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=uv_index&timezone=auto'; 
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=uv_index&timezone=auto'; 
   
     fetch( URL )
       .then(responseText => responseText.json())
@@ -106,7 +112,7 @@ let cargarOpenMeteo = () => {
         //Respuesta en formato JSON
 
         //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot2');
+        let plotRef = document.getElementById('plot');
 
         //Etiquetas del gráfico
         let labels = responseJSON.hourly.time;
@@ -134,9 +140,12 @@ let cargarOpenMeteo = () => {
     })
     .catch(console.error);
 
+}
+let cargarGraficoTemperatura = () => {
+    
     //TEMPERATURA
     //URL que responde con la respuesta a cargar
-    URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=temperature_2m&timezone=auto'; 
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=temperature_2m&timezone=auto'; 
   
     fetch( URL )
       .then(responseText => responseText.json())
@@ -145,7 +154,7 @@ let cargarOpenMeteo = () => {
         //Respuesta en formato JSON
 
         //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot3');
+        let plotRef = document.getElementById('plot');
 
         //Etiquetas del gráfico
         let labels = responseJSON.hourly.time;
@@ -175,9 +184,13 @@ let cargarOpenMeteo = () => {
 
 }
 
-  cargarOpenMeteo();
+document.getElementById("btn_precipitacion").onclick = () => {
+    
+}
 
-  cargarFechaActual();
-  cargarPrecipitacion();
-  cargarUV();
-  cargarTemperatura()
+cargarOpenMeteo();
+
+cargarFechaActual();
+cargarPrecipitacion();
+cargarUV();
+cargarTemperatura()
