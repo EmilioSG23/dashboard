@@ -116,19 +116,73 @@
             </h4>
             <div class="container">
                 <div
-                    class="row d-flex justify-content-center row-cols-1 row-cols-md-1 g-4 mt-2">
+                    class="row d-flex justify-content-center row-cols-3 row-cols-md-3 g-4 mt-2">
                 </div>
-                <button id="btn_precipitacion" type="button" class="btn btn-primary">Precipitación</button>
+                <!-- <button id="btn_precipitacion" type="button" class="btn btn-primary">Precipitación</button>
                 <button id="btn_uv" type="button" class="btn btn-warning">UV</button>
-                <button id="btn_temperatura" type="button" class="btn btn-info">Temperatura</button>
+                <button id="btn_temperatura" type="button" class="btn btn-info">Temperatura</button> -->
                     <div class="col">
-                        <canvas id="plot"></canvas>
+                        <canvas id="plot1"></canvas>
+                    </div>
+                    <div class="col">
+                        <canvas id="plot2"></canvas>
+                    </div>
+                    <div class="col">
+                        <canvas id="plot3"></canvas>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Gráficos -->
-        <!-- Indicadores -->
+        
+  <!-- Datos -->
+    <section class="p-4 text-right bg-light">
+        <h4 id="datos" class="mb-3">
+            Datos
+        </h4>
+        <div class="container">
+
+            <div
+                class="row justify-content-end row-cols-6 row-cols-md-6 g-3 mt-2">
+
+                <div class="col">
+                    <select class="form-select form-select-lg mb-3"
+                        aria-label="Default select example">
+                        <option selected>Ciudades</option>
+                        <option value="Machala">Machala</option>
+                        <option value="Guayaquil">Guayaquil</option>
+                        <option value="Quito">Quito</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="row row-cols-1 row-cols-md-1 g-3 mt-2">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Pronóstico del tiempo
+                                para 5 días con datos cada 3 horas por
+                                ciudad</h5>
+                            <table id="forecast"
+                                class="table align-middle mb-0 bg-white">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Humedad [%]</th>
+                                        <th>Velocidad del viento [m/s]</th>
+                                        <th>Precipitación [--]</th>
+                                        <th>Presión [hPa]</th>
+                                        <th>Nubosidad [%]</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecastbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Datos -->
         
         <!-- MDB -->
         <script
