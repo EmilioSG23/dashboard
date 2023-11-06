@@ -216,7 +216,7 @@ let parseXML = (responseText) => {
                 <td>${cloud}</td>
             </tr>
         `
-
+        
         //Renderizando la plantilla en el elemento HTML
         forecastElement.innerHTML += template;
     })
