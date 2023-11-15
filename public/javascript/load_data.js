@@ -2,186 +2,251 @@ import {
     tiempoArr, precipitacionArr, uvArr, temperaturaArr
 } from './static_data.js';
 
+import {
+    ciudadesEcuador
+} from './cities.js';
+
 let fechaActual = () => new Date().toISOString().slice(0,10);
 
-let cargarFechaActual = () => {document.getElementsByTagName("h6")[0].textContent = fechaActual();}
-let cargarPrecipitacion = () => {
-    //Obtenga la función fechaActual
-    //Defina un arreglo temporal vacío
-    //Itere en el arreglo tiempoArr para filtrar los valores de precipitacionArr que sean igual con la fecha actual
-    //Con los valores filtrados, obtenga los valores máximo, promedio y mínimo
-    //Obtenga la referencia a los elementos HTML con id precipitacionMinValue, precipitacionPromValue y precipitacionMaxValue
-    //Actualice los elementos HTML con los valores correspondientes
+let cargarFechaHora = () => {
+    cargarFechaActual()
+    cargarReloj()
+}
+let cargarFechaActual = () => {document.getElementById("fecha-span").textContent = fechaActual();}
+
+let cargarReloj = () =>{
+    let myDate = new Date();
+    let hours = myDate.getHours();
+    let minutes = myDate.getMinutes();
+    let seconds = myDate.getSeconds();
+    if (hours < 10) hours = 0 + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+    if (seconds < 10) seconds = "0" + seconds;
+    document.getElementById("HoraActual").textContent=(hours+ ":" +minutes+ ":" +seconds);
+    setInterval(cargarReloj,1000)
+}
+
+let cargarNombreCiudad = (ciudad) => {document.getElementById("ciudad-header").textContent = ciudad}
+
+let cargarDatosCiudad = (nombreCiudad) => {
+    ciudadesEcuador.forEach(ciudad =>{
+        if(ciudad.name == nombreCiudad)
+            cargarDatos(ciudad)
+    })
+}
+
+let cargarDatos = (ciudad) => {
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
+            '&longitude='+ciudad.longitude.toString()+
+            '&hourly=temperature_2m,precipitation,uv_index&timezone=auto'
+    cargarNombreCiudad(ciudad.name)
+    fetch(URL)
+        .then(responseText => responseText.json())
+        .then(responseJSON => {
+            cargarIndicadores (responseJSON)
+            cargarGraficos (responseJSON)
+        })
+        .catch(console.error);
+    cargarPronostico (ciudad)
+}
+
+/* INDICADOR */
+let cargarIndicadores = (responseJSON) => {
+    let datosTiempo = responseJSON.hourly.time
+    let datosPrecipitacion = responseJSON.hourly.precipitation
+    let datosUV = responseJSON.hourly.uv_index
+    let datosTemperatura = responseJSON.hourly.temperature_2m
+
+    cargarPrecipitacion(datosTiempo, datosPrecipitacion)
+    cargarUV(datosTiempo, datosUV)
+    cargarTemperatura(datosTiempo, datosTemperatura)
+}
+
+let calcularIndicador = (tiempo, datos) => {
     let temp = [];
     for(let i=0;i<tiempoArr.length;i++)
-        if(tiempoArr[i].includes(fechaActual()))
-            temp.push(precipitacionArr[i]);
-    let precMax = Math.max(...temp);
-    let precMin = Math.min(...temp);
-    let precSum = temp.reduce((a, b) => a + b, 0);
-    let precProm = (precSum / temp.length) || 0;
+        if(tiempo[i].includes(fechaActual()))
+            temp.push(datos[i]);
 
-    document.getElementById("precipitacionMinValue").textContent = `Min ${precMin} [mm]`;
-    document.getElementById("precipitacionPromValue").textContent = `Prom ${Math.round(precProm * 100) / 100 } [mm]`;
-    document.getElementById("precipitacionMaxValue").textContent = `Max ${precMax} [mm]`;
+    let sum = temp.reduce((a, b) => a + b, 0);
+
+    let indicador = {
+        max: Math.max(...temp),
+        min: Math.min(...temp),
+        prom: (sum / temp.length) || 0,
+    };
+
+    return indicador
 }
 
-let cargarUV = () => {
-    let datos = [];
-    for (let i=0; i<uvArr.length;i++)
-        if (tiempoArr[i].includes(fechaActual()))
-            datos.push(uvArr[i]);
-    let uvMax = Math.max(...datos);
-    let uvMin = Math.min(...datos);
-    let uvSum = datos.reduce((a,b) => a + b, 0);
-    let uvProm = (uvSum/datos.length) || 0;
+let cargarPrecipitacion = (tiempo, datos) => {
+    let prec = calcularIndicador (tiempo, datos);
 
-    document.getElementById("uvMinValue").textContent = `Min ${uvMin} [--]`;
-    document.getElementById("uvPromValue").textContent = `Prom ${Math.round(uvProm * 100) / 100 } [--]`;
-    document.getElementById("uvMaxValue").textContent = `Max ${uvMax} [--]`;
+    document.getElementById("precipitacionMinValue").textContent = `Min ${prec.min} [mm]`;
+    document.getElementById("precipitacionPromValue").textContent = `Prom ${Math.round(prec.prom * 100) / 100 } [mm]`;
+    document.getElementById("precipitacionMaxValue").textContent = `Max ${prec.max} [mm]`;
 }
 
-let cargarTemperatura = () => {
-    let datos = [];
-    for (let i=0; i<uvArr.length;i++)
-        if (tiempoArr[i].includes(fechaActual()))
-            datos.push(temperaturaArr[i]);
-    let temperaturaMax = Math.max(...datos);
-    let temperaturaMin = Math.min(...datos);
-    let temperaturaSum = datos.reduce((a,b) => a + b, 0);
-    let temperaturaProm = (temperaturaSum/datos.length) || 0;
+let cargarUV = (tiempo, datos) => {
+    let uv = calcularIndicador (tiempo, datos);
 
-    document.getElementById("temperaturaMinValue").textContent = `Min ${temperaturaMin} [°C]`;
-    document.getElementById("temperaturaPromValue").textContent = `Prom ${Math.round(temperaturaProm * 100) / 100 } [°C]`;
-    document.getElementById("temperaturaMaxValue").textContent = `Max ${temperaturaMax} [°C]`;
+    document.getElementById("uvMinValue").textContent = `Min ${uv.min} [--]`;
+    document.getElementById("uvPromValue").textContent = `Prom ${Math.round(uv.prom * 100) / 100 } [--]`;
+    document.getElementById("uvMaxValue").textContent = `Max ${uv.max} [--]`;
 }
 
-let cargarGraficoPrecipitacion = () => {
-    //PRECIPITACION
-    //URL que responde con la respuesta a cargar
-    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=precipitation_probability,precipitation&timezone=auto';
-    fetch( URL )
-      .then(responseText => responseText.json())
-      .then(responseJSON => {
-        
-        //Respuesta en formato JSON
+let cargarTemperatura = (tiempo, datos) => {
+    let temperatura = calcularIndicador(tiempo, datos)
 
-        //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot1');
-
-        //Etiquetas del gráfico
-        let labels = responseJSON.hourly.time;
-
-        //Etiquetas de los datos
-        let dataProbabilidad = responseJSON.hourly.precipitation_probability;
-        let dataPrecipitacion = responseJSON.hourly.precipitation;
-
-        //Objeto de configuración del gráfico
-        let config = {
-            type: 'line',
-            data: {
-                labels: labels, 
-                datasets: [
-                {
-                    label: 'Probabilidad de Precipitación',
-                    data: dataProbabilidad, 
-                },{
-                    label: 'Precipitación',
-                    data: dataPrecipitacion,
-                }
-                ]
-            }
-        };
-
-        //Objeto con la instanciación del gráfico
-        let chart  = new Chart(plotRef, config);
-
-    })
-    .catch(console.error);
+    document.getElementById("temperaturaMinValue").textContent = `Min ${temperatura.min} [°C]`;
+    document.getElementById("temperaturaPromValue").textContent = `Prom ${Math.round(temperatura.prom * 100) / 100 } [°C]`;
+    document.getElementById("temperaturaMaxValue").textContent = `Max ${temperatura.max} [°C]`;
 }
 
-let cargarGraficoUV = () => {
-    //UV
-    //URL que responde con la respuesta a cargar
-    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=uv_index&timezone=auto'; 
-  
-    fetch( URL )
-      .then(responseText => responseText.json())
-      .then(responseJSON => {
-        
-        //Respuesta en formato JSON
+/* GRAFICO */
 
-        //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot2');
+let cargarGraficos = (responseJSON) => {
+    let datosTiempo = responseJSON.hourly.time
+    let datosPrecipitacion = responseJSON.hourly.precipitation
+    let datosUV = responseJSON.hourly.uv_index
+    let datosTemperatura = responseJSON.hourly.temperature_2m
 
-        //Etiquetas del gráfico
-        let labels = responseJSON.hourly.time;
+    cargarGraficoPrecipitacion(datosTiempo, datosPrecipitacion)
+    cargarGraficoUV(datosTiempo, datosUV)
+    cargarGraficoTemperatura(datosTiempo, datosTemperatura)
 
-        //Etiquetas de los datos
-        let data = responseJSON.hourly.uv_index;
+    mostrarGraficoPrecipitacion()
+}
 
-        //Objeto de configuración del gráfico
-        let config = {
-            type: 'line',
-            data: {
-                labels: labels, 
-                datasets: [
-                {
-                    label: 'UV Index',
-                    data: data, 
-                }
-                ]
-            }
-        };
+let cargarGraficoPrecipitacion = (tiempo, datos) => {
+    let plotRef = document.getElementById('grafico-precipitacion');
 
-        //Objeto con la instanciación del gráfico
-        let chart  = new Chart(plotRef, config);
+    //Objeto de configuración del gráfico
+    let config = {
+        type: 'line',
+        data: {
+            labels: tiempo, 
+            datasets: [{
+                label: 'Precipitación',
+                data: datos,
+            }]
+        }
+    };
 
-    })
-    .catch(console.error);
+    //Objeto con la instanciación del gráfico
+    let chart  = new Chart(plotRef, config);
+}
+
+let cargarGraficoUV = (tiempo, datos) => {
+    let plotRef = document.getElementById('grafico-uv');
+
+    //Objeto de configuración del gráfico
+    let config = {
+        type: 'line',
+        data: {
+            labels: tiempo, 
+            datasets: [{
+                label: 'UV Index',
+                data: datos,
+                backgroundColor: 'rgba(255,200,0,1)',
+            }]
+        }
+    };
+
+    //Objeto con la instanciación del gráfico
+    let chart  = new Chart(plotRef, config);
 
 }
-let cargarGraficoTemperatura = () => {
+let cargarGraficoTemperatura = (tiempo, datos) => {
+    let plotRef = document.getElementById('grafico-temperatura');
+
+    //Objeto de configuración del gráfico
+    let config = {
+        type: 'line',
+        data: {
+            labels: tiempo, 
+            datasets: [{
+                label: 'Temperature [2m]',
+                data: datos,
+                backgroundColor: 'rgba(150,150,150,1)',
+            }]
+        }
+    };
+
+    //Objeto con la instanciación del gráfico
+    let chart  = new Chart(plotRef, config);
+
+}
+
+let mostrarGraficoPrecipitacion = () => {
+    let precipitacion = document.getElementById('grafico-precipitacion')
+    let uv = document.getElementById('grafico-uv')
+    let temperatura = document.getElementById('grafico-temperatura')
+
+    mostrarGrafico(precipitacion)
+    ocultarGrafico(uv)
+    ocultarGrafico(temperatura)
     
-    //TEMPERATURA
-    //URL que responde con la respuesta a cargar
-    let URL = 'https://api.open-meteo.com/v1/forecast?latitude=-2.1962&longitude=-79.8862&hourly=temperature_2m&timezone=auto'; 
-  
-    fetch( URL )
-      .then(responseText => responseText.json())
-      .then(responseJSON => {
-        
-        //Respuesta en formato JSON
+}
+let mostrarGraficoUV = () => {
+    let precipitacion = document.getElementById('grafico-precipitacion')
+    let uv = document.getElementById('grafico-uv')
+    let temperatura = document.getElementById('grafico-temperatura')
 
-        //Referencia al elemento con el identificador plot
-        let plotRef = document.getElementById('plot3');
+    ocultarGrafico(precipitacion)
+    mostrarGrafico(uv)
+    ocultarGrafico(temperatura)
+}
+let mostrarGraficoTemperatura = () => {
+    let precipitacion = document.getElementById('grafico-precipitacion')
+    let uv = document.getElementById('grafico-uv')
+    let temperatura = document.getElementById('grafico-temperatura')
 
-        //Etiquetas del gráfico
-        let labels = responseJSON.hourly.time;
+    ocultarGrafico(precipitacion)
+    ocultarGrafico(uv)
+    mostrarGrafico(temperatura)
+}
 
-        //Etiquetas de los datos
-        let data = responseJSON.hourly.temperature_2m;
+let mostrarGrafico = (plot) => {
+    if(plot.classList.contains("d-none"))
+        plot.classList.remove("d-none")
+}
+let ocultarGrafico = (plot) => {
+    if(!plot.classList.contains("d-none"))
+        plot.classList.add("d-none")
+}
 
-        //Objeto de configuración del gráfico
-        let config = {
-            type: 'line',
-            data: {
-                labels: labels, 
-                datasets: [
-                {
-                    label: 'Temperature [2m]',
-                    data: data, 
-                }
-                ]
-            }
-        };
+/* Botones */
+document.getElementById("btn-precipitacion").onclick = () => {mostrarGraficoPrecipitacion();}
+document.getElementById("btn-uv").onclick = () => {mostrarGraficoUV();}
+document.getElementById("btn-temperatura").onclick = () => {mostrarGraficoTemperatura();}
 
-        //Objeto con la instanciación del gráfico
-        let chart  = new Chart(plotRef, config);
+/* PRONOSTICOS */
 
-    })
-    .catch(console.error);
+let cargarPronostico = async (ciudad) => {
+    // Lea la entrada de almacenamiento local
+    let cityStorage = localStorage.getItem(ciudad.name);
 
+    if (cityStorage == null) {
+        try {
+            //API key
+            let APIkey = '52ef10cd68238328de4f767883bcda7c';
+            //let url = `https://api.openweathermap.org/data/2.5/forecast?q=${ciudad.name}&mode=xml&appid=${APIkey}`;
+            let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${ciudad.latitude}&lon=${ciudad.longitude}&mode=xml&appid=${APIkey}`;
+
+            let response = await fetch(url)
+            let responseText = await response.text()
+            // Guarde la entrada de almacenamiento local
+            await localStorage.setItem(ciudad.name, responseText)
+            await parseXML(responseText)
+
+        } catch (error) {
+            console.log(error)
+        }
+    }else{
+        // Procese un valor previo
+        parseXML(cityStorage)
+    }
 }
 
 let parseXML = (responseText) => {
@@ -226,30 +291,6 @@ let parseXML = (responseText) => {
   let selectListener = async (event) => {
   
     let selectedCity = event.target.value
-    //console.log(selectedCity);
-    // Lea la entrada de almacenamiento local
-    let cityStorage = localStorage.getItem(selectedCity);
-
-    if (cityStorage == null) {
-        try {
-            //API key
-            let APIkey = '52ef10cd68238328de4f767883bcda7c';
-            let url = `https://api.openweathermap.org/data/2.5/forecast?q=${selectedCity}&mode=xml&appid=${APIkey}`;
-
-            let response = await fetch(url)
-            let responseText = await response.text()
-            // Guarde la entrada de almacenamiento local
-            await localStorage.setItem(selectedCity, responseText)
-            await parseXML(responseText)
-
-        } catch (error) {
-            console.log(error)
-        }
-    }else{
-        // Procese un valor previo
-        parseXML(cityStorage)
-    }
-
 
   }
   
@@ -260,8 +301,7 @@ let parseXML = (responseText) => {
 
   }
   
-  let loadExternalTable = async () => {
-    
+  let cargarMonitoreo = async () => {
     let proxyURL = 'https://cors-anywhere.herokuapp.com/'
     let endpoint = proxyURL + 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/'
     //Requerimiento asíncrono
@@ -278,17 +318,8 @@ let parseXML = (responseText) => {
     elementoDOM.innerHTML = elementoXML.outerHTML;
    }
 
-/* --- INVOCACIÓN DE FUNCIONES --- */
-/*document.getElementById("btn_precipitacion").onclick = () => {cargarGraficoPrecipitacion();}
-document.getElementById("btn_uv").onclick = () => {cargarGraficoUV();}
-document.getElementById("btn_temperatura").onclick = () => {cargarGraficoTemperatura();}*/
+//loadForecastByCity();
 
-loadForecastByCity();
-loadExternalTable();
-cargarFechaActual();
-cargarGraficoPrecipitacion();
-cargarGraficoUV();
-cargarGraficoTemperatura();
-cargarPrecipitacion();
-cargarUV();
-cargarTemperatura()
+cargarFechaHora();
+cargarDatosCiudad("Guayaquil");
+cargarMonitoreo();
