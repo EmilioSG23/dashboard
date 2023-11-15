@@ -1,22 +1,5 @@
 export let ciudadesEcuador = [
     {
-        provincia: "Guayas",
-        ciudades: [
-            {name: "Guayaquil",
-            latitude: -2.1962,
-            longitude: -79.8862,}
-        ]
-    },
-    {
-        provincia: "Pichincha",
-        ciudades: [
-            {name: "Quito",
-            latitude: -0.2298,
-            longitude: -78.525}
-        ]
-        
-    },
-    {
         provincia: "Azuay",
         ciudades: [
             {name: "Cuenca",
@@ -39,6 +22,23 @@ export let ciudadesEcuador = [
             {name: "Puerto Baquerizo Moreno",
             latitude: -0.9017,
             longitude: -89.6102}
+        ]
+        
+    },
+    {
+        provincia: "Guayas",
+        ciudades: [
+            {name: "Guayaquil",
+            latitude: -2.1962,
+            longitude: -79.8862,}
+        ]
+    },
+    {
+        provincia: "Pichincha",
+        ciudades: [
+            {name: "Quito",
+            latitude: -0.2298,
+            longitude: -78.525}
         ]
         
     },
