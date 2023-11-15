@@ -23,8 +23,6 @@
         <link href="public/myStyle.css"
               rel="stylesheet" >
     </head>
-
-
     <body>
 
         <header>
@@ -61,7 +59,7 @@
         </header>
 
         <!-- Indicadores -->
-        <section class="container border p-4 text-center bg-light">
+        <section class="p-4 text-right bg-light">
             <h4 id="indicadores" class="mb-3">
                 Indicadores 
             </h4>
@@ -69,9 +67,9 @@
             <div class="container">
                 <div class="row row-cols-1 row-cols-md-3 g-3 mt-2">
                     <div class="col">
-                        <div class="card border">
+                        <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title border-bottom pb-3">Precipitación</h5>
+                                <h5 class="card-title">Precipitación</h5>
                                 <p class="card-text">
                                     <ul class="list-group list-group-light">
                                         <li id="precipitacionMinValue" class="list-group-item">Min 0.0 [mm]</li>
@@ -114,7 +112,7 @@
             </div>
         </section> 
         <!-- Gráficos -->
-        <section class="container p-4 text-right bg-light">
+        <section class="p-4 text-right bg-light">
             <h4 id="graficos" class="mb-3">
                 Gráficos
             </h4>
@@ -139,11 +137,11 @@
         </section>
         
         <!-- Datos -->
-        <section class="container p-4 text-right bg-light">
+        <section class="p-4 text-right bg-light">
             <h4 id="datos" class="mb-3">
                 Datos
             </h4>
-            <!-- <div class="container">
+            <div class="container">
 
                 <div
                     class="row justify-content-end row-cols-6 row-cols-md-6 g-3 mt-2">
@@ -159,7 +157,6 @@
                     </div>
 
                 </div>
-            -->
                 <div class="row row-cols-1 row-cols-md-1 g-3 mt-2">
                     <div class="col">
                         <div class="card">
@@ -189,8 +186,8 @@
         </section>
         <!-- Datos -->
         
-        <!-- Tabla de mareas -->
-        <section class="container p-4 text-right bg-light">
+         <!-- Tabla de mareas -->
+        <section class="p-4 text-right bg-light">
             <h4 class="mb-3">
                 Mapa de monitoreo de amenaza de inundaciones bajo pronóstico de precipitaciones
             </h4>
@@ -198,9 +195,7 @@
                 <div class="row row-cols-1 row-cols-md-1 g-3 mt-2">
                     <div class="col">
                         <div class="card">
-                            <div id="monitoreo" class="card-body">
-                                
-                            </div>
+                            <div id="monitoreo-table" class="card-body"></div>
                         </div>
                     </div>
                 </div>
@@ -216,7 +211,7 @@
         <!-- Static data -->
         <script type="module" src="public/javascript/static_data.js"></script>
         <!-- Load data -->
-        <script type="module" src="public/javascript/load_data.js"></script>
+        <script type="module" src="public/javascript/load_data_old.js"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     </body>

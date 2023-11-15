@@ -6,6 +6,8 @@ import {
     ciudadesEcuador
 } from './cities.js';
 
+let grafico_activado = "precipitacion"
+
 let fechaActual = () => new Date().toISOString().slice(0,10);
 
 let cargarFechaHora = () => {
@@ -19,19 +21,24 @@ let cargarReloj = () =>{
     let hours = myDate.getHours();
     let minutes = myDate.getMinutes();
     let seconds = myDate.getSeconds();
-    if (hours < 10) hours = 0 + hours;
+    if (hours < 10) hours = "0" + hours;
     if (minutes < 10) minutes = "0" + minutes;
     if (seconds < 10) seconds = "0" + seconds;
     document.getElementById("HoraActual").textContent=(hours+ ":" +minutes+ ":" +seconds);
+
     setInterval(cargarReloj,1000)
 }
 
 let cargarNombreCiudad = (ciudad) => {document.getElementById("ciudad-header").textContent = ciudad}
 
 let cargarDatosCiudad = (nombreCiudad) => {
-    ciudadesEcuador.forEach(ciudad =>{
-        if(ciudad.name == nombreCiudad)
-            cargarDatos(ciudad)
+    ciudadesEcuador.forEach(provincia =>{
+        provincia.ciudades.forEach(ciudad =>{
+            if(ciudad.name == nombreCiudad){
+                cargarDatos(ciudad)
+                return;
+            }
+        })
     })
 }
 
@@ -115,11 +122,20 @@ let cargarGraficos = (responseJSON) => {
     cargarGraficoUV(datosTiempo, datosUV)
     cargarGraficoTemperatura(datosTiempo, datosTemperatura)
 
-    mostrarGraficoPrecipitacion()
+    if(grafico_activado == "precipitacion")
+        mostrarGraficoPrecipitacion()
+    else if (grafico_activado == "uv")
+        mostrarGraficoUV()
+    else if(grafico_activado == "temperatura")
+        mostrarGraficoTemperatura()
 }
 
 let cargarGraficoPrecipitacion = (tiempo, datos) => {
     let plotRef = document.getElementById('grafico-precipitacion');
+
+    let chart = Chart.getChart("grafico-precipitacion")
+    if(chart)
+        chart.destroy()
 
     //Objeto de configuración del gráfico
     let config = {
@@ -134,11 +150,15 @@ let cargarGraficoPrecipitacion = (tiempo, datos) => {
     };
 
     //Objeto con la instanciación del gráfico
-    let chart  = new Chart(plotRef, config);
+    chart  = new Chart(plotRef, config);
 }
 
 let cargarGraficoUV = (tiempo, datos) => {
     let plotRef = document.getElementById('grafico-uv');
+
+    let chart = Chart.getChart("grafico-uv")
+    if(chart)
+        chart.destroy()
 
     //Objeto de configuración del gráfico
     let config = {
@@ -154,11 +174,14 @@ let cargarGraficoUV = (tiempo, datos) => {
     };
 
     //Objeto con la instanciación del gráfico
-    let chart  = new Chart(plotRef, config);
-
+    chart  = new Chart(plotRef, config);
 }
 let cargarGraficoTemperatura = (tiempo, datos) => {
     let plotRef = document.getElementById('grafico-temperatura');
+
+    let chart = Chart.getChart("grafico-temperatura")
+    if(chart)
+        chart.destroy()
 
     //Objeto de configuración del gráfico
     let config = {
@@ -174,8 +197,7 @@ let cargarGraficoTemperatura = (tiempo, datos) => {
     };
 
     //Objeto con la instanciación del gráfico
-    let chart  = new Chart(plotRef, config);
-
+    chart  = new Chart(plotRef, config);
 }
 
 let mostrarGraficoPrecipitacion = () => {
@@ -187,6 +209,7 @@ let mostrarGraficoPrecipitacion = () => {
     ocultarGrafico(uv)
     ocultarGrafico(temperatura)
     
+    grafico_activado = "precipitacion"
 }
 let mostrarGraficoUV = () => {
     let precipitacion = document.getElementById('grafico-precipitacion')
@@ -196,6 +219,8 @@ let mostrarGraficoUV = () => {
     ocultarGrafico(precipitacion)
     mostrarGrafico(uv)
     ocultarGrafico(temperatura)
+
+    grafico_activado = "uv"
 }
 let mostrarGraficoTemperatura = () => {
     let precipitacion = document.getElementById('grafico-precipitacion')
@@ -205,6 +230,8 @@ let mostrarGraficoTemperatura = () => {
     ocultarGrafico(precipitacion)
     ocultarGrafico(uv)
     mostrarGrafico(temperatura)
+
+    grafico_activado = "temperatura"
 }
 
 let mostrarGrafico = (plot) => {
@@ -281,34 +308,32 @@ let parseXML = (responseText) => {
                 <td>${cloud}</td>
             </tr>
         `
-        
         //Renderizando la plantilla en el elemento HTML
         forecastElement.innerHTML += template;
     })
-  }
-  
-  //Callback
-  let selectListener = async (event) => {
-  
-    let selectedCity = event.target.value
-
-  }
-  
-  let loadForecastByCity = () => {
-    //Handling event
-    let selectElement = document.querySelector("select");
-    selectElement.addEventListener("change", selectListener);
-
+    
   }
   
   let cargarMonitoreo = async () => {
-    let proxyURL = 'https://cors-anywhere.herokuapp.com/'
-    let endpoint = proxyURL + 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/'
-    //Requerimiento asíncrono
-    //let endpoint = 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/';
-    let response = await fetch(endpoint);
-    let responseText = await response.text();
-    //LOCAL STORAGE EMILIO!!!!!!!!
+    let monitoreoStorage = localStorage.getItem("monitoreo")
+    
+    if(monitoreoStorage == null){
+        let proxyURL = 'https://cors-anywhere.herokuapp.com/'
+        let endpoint = proxyURL + 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/'
+        //Requerimiento asíncrono
+        //let endpoint = 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/';
+        let response = await fetch(endpoint);
+        let responseText = await response.text();
+
+        await localStorage.setItem("monitoreo",responseText)
+        await parseMonitoreo(responseText)
+    }else{
+        parseMonitoreo(monitoreoStorage)
+    }
+    
+}
+
+let parseMonitoreo = async (responseText) => {
     const parser = new DOMParser();
     const xml = parser.parseFromString(responseText, "text/html");
 
@@ -316,10 +341,69 @@ let parseXML = (responseText) => {
     let elementoDOM = document.getElementById("monitoreo");
 
     elementoDOM.innerHTML = elementoXML.outerHTML;
-   }
+}
 
-//loadForecastByCity();
+/* SELECTOR DE CIUDADES */
+let cargarSelectorProvincia = () => {
+    let selector_provincia = document.getElementById("selector-provincia")
+    let provincias = []
+    ciudadesEcuador.forEach(ciudad =>{
+        provincias.push(ciudad.provincia)
+    })
+    selector_provincia.innerHTML = '<option selected>Seleccione provincia</option>'
+    añadirItems(selector_provincia, provincias)
+    selector_provincia.addEventListener("change", cargarSelectorCiudad)
+}
+
+let cargarSelectorCiudad = (event) => {
+    let selector_ciudad = document.getElementById("selector-ciudad")
+    let selectProvincia = event.target.value
+
+    selector_ciudad.innerHTML = '<option selected>Seleccione ciudad</option>'
+    document.getElementById("btn-mostrar-datos").disabled = true
+    if(selectProvincia == "Seleccione provincia"){
+        selector_ciudad.disabled = true;
+        return;
+    }else{
+        selector_ciudad.disabled = false;
+    }
+    let ciudades = cargarCiudadesProvincia(selectProvincia)
+    añadirItems(selector_ciudad,ciudades)
+    selector_ciudad.addEventListener("change", mostrarDatos)
+}
+
+let cargarCiudadesProvincia = (nombreProvincia) =>{
+    let ciudades = []
+    ciudadesEcuador.forEach(provincia =>{
+        if(provincia.provincia == nombreProvincia)
+            provincia.ciudades.forEach(ciudad =>{
+                ciudades.push(ciudad.name)
+            })
+    })
+    return ciudades
+}
+
+let añadirItems = (selector, lista) => {
+    lista.forEach (item =>{
+        selector.innerHTML += `<option>${item}</option>`
+    })
+}
+
+let mostrarDatos = (event) => {
+    let boton = document.getElementById("btn-mostrar-datos")
+
+    let selectCiudad = event.target.value
+
+    if (selectCiudad == "Seleccione ciudad"){
+        boton.disabled = true
+        return;
+    }else{
+        boton.disabled = false
+    }
+    boton.onclick = () =>{cargarDatosCiudad(selectCiudad)}
+}
 
 cargarFechaHora();
+cargarSelectorProvincia();
 cargarDatosCiudad("Guayaquil");
 cargarMonitoreo();

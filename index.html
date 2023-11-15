@@ -6,9 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Dashboard - SB Admin</title>
+        <title>Dashboard Ecuador</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <link href="public/styles.css" rel="stylesheet" />
+        <link href="public/myStyle.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
     <body class="sb-nav-fixed">
@@ -34,18 +35,14 @@
                                     <div class="container px-3">
                                         <div class="py-3">
                                             Provincia
-                                            <select class="form-select" id = "selector-provincia">
-                                                <option selected>Seleccione provincia</option>
-                                            </select>
+                                            <select class="form-select" id = "selector-provincia"></select>
                                         </div>
                                         <div class="pb-4">
                                             Ciudad
-                                            <select class="form-select" id = "selector-ciudad">
-                                                <option selected>Seleccione ciudad</option>
-                                            </select>
+                                            <select class="form-select" id = "selector-ciudad" disabled="true"></select>
                                         </div>
                                         <div class="row px-3 text-center">
-                                            <button type="button" class="btn btn-primary btn-sm">Mostrar Datos</button>
+                                            <button id="btn-mostrar-datos" type="button" class="btn btn-primary btn-sm" disabled="false">Mostrar Datos</button>
                                         </div>
                                     </div>
                                 </nav>
@@ -81,12 +78,14 @@
                             <div>
                                 <span class="fw-bolder">Fecha: </span>
                                 <span class="fw-normal" id="fecha-span" href="">AAAA-MM-DD</span>
+                                &middot;
                                 <span class="fw-bolder">Hora: </span>
                                 <span class="fw-normal" id="HoraActual" href="">00:00:00</span>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-xl-4">
+                        <section class="row">
+                            <!-- Indicadores -->
+                            <section id="indicadores" class="col-xl-4">
                                 <div class="card mb-4">
                                     <div class="card-header bg-dark fw-bolder text-white h4">
                                         <i class="fas fa-thermometer-half me-1"></i>
@@ -167,8 +166,11 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-xl-8">
+                            </section>
+                            <!-- Indicadores -->
+
+                            <!-- Gráficos -->
+                            <section id="graficos" class="col-xl-8">
                                 <div class="card mb-4">
                                     <div class="card-header bg-dark fw-bolder text-white h4">
                                         <i class="fas fa-thermometer-half me-1"></i>
@@ -185,15 +187,18 @@
                                         <canvas id="grafico-temperatura" width="100%" height="31"></canvas>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
+                            </section>
+                            <!-- Gráficos -->
+                        </section>
+
+                        <!-- Datos -->
+                        <section id="pronostico" class="card mb-4">
                             <div class="card-header bg-dark fw-bolder text-white h4">
                                 <i class="fas fa-search me-1"></i>
-                                Prediciones para los próximos 5 días
+                                Pronóstico para los próximos 5 días
                             </div>
                             <div class="card-body">
-                                <table id="datatablesSimple">
+                                <table class="table table-sm table-hover">
                                     <thead>
                                         <tr>
                                             <th>Hora</th>
@@ -207,28 +212,37 @@
                                     <tbody id="forecastbody"></tbody>
                                 </table>
                             </div>
-                        </div>
+                        </section>
+                        <!-- Datos -->
 
-                        <div class="card mb-4">
+                        <!-- Tabla de mareas -->
+                        <section id="monitoreo" class="card mb-4">
                             <div class="card-header bg-dark fw-bolder text-white h4">
-                                <i class="fas fa-desktop me-1"></i>
-                                Monitoreo de lluvias
+                                <i class="fas fa-search me-1"></i>
+                                Mapa de monitoreo de amenaza de inundaciones bajo pronóstico de precipitaciones
                             </div>
-                            <div class="card-body" id="monitoreo">
+                            <div class="card-body">
+                                <div class="col">
+                                    <div id="monitoreo-section" class="card">
+                                        <div id="monitoreo-table" class="card-body"></div>
+                                    </div>
+                                    <span class="text-muted">Tomado de: <a href="https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/">https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/</a></span>
+                                </div>
                             </div>
-                        </div>
+                        </section>
+                        <!-- Tabla de mareas -->
 
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
-                            <div>
+                            <div class="text-muted">Copyright &copy; Dashboard Ecuador 2023</div>
+                            <!--<div>
                                 <a href="#">Privacy Policy</a>
                                 &middot;
                                 <a href="#">Terms &amp; Conditions</a>
-                            </div>
+                            </div>-->
                         </div>
                     </div>
                 </footer>
