@@ -94,6 +94,9 @@ let actualizarDatos = () => {
     actualizarPronostico()
     actualizarMonitoreo()
 
+    if(localStorage.getItem("") != null)
+        localStorage.removeItem("")
+
     setInterval(actualizarDatos,1000)
 }
 
@@ -235,7 +238,8 @@ let cargarGraficoPrecipitacion = (tiempo, datos) => {
                 label: 'Precipitación',
                 data: datos,
             }]
-        }
+        },
+        options: {scales: {x: {display: false}}}
     };
 
     //Objeto con la instanciación del gráfico
@@ -259,7 +263,8 @@ let cargarGraficoUV = (tiempo, datos) => {
                 data: datos,
                 backgroundColor: 'rgba(255,200,0,1)',
             }]
-        }
+        },
+        options: {scales: {x: {display: false}}}
     };
 
     //Objeto con la instanciación del gráfico
@@ -282,7 +287,8 @@ let cargarGraficoTemperatura = (tiempo, datos) => {
                 data: datos,
                 backgroundColor: 'rgba(150,150,150,1)',
             }]
-        }
+        },
+        options: {scales: {x: {display: false}}}
     };
 
     //Objeto con la instanciación del gráfico
