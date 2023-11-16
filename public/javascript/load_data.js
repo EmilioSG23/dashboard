@@ -7,9 +7,42 @@ import {
 } from './cities.js';
 
 let grafico_activado = "precipitacion"
+let provincia_activado = localStorage.getItem("provincia-activado")
+let ciudad_activado = localStorage.getItem("ciudad-activado")
 
-let fechaActual = () => new Date().toISOString().slice(0,10);
+if(provincia_activado==null || ciudad_activado==null){
+    provincia_activado= "Guayas"
+    ciudad_activado= "Guayaquil"
+}
 
+let obtenerProvincia = (nombre) => {
+    let provinciaObjeto
+    ciudadesEcuador.forEach(provincia=>{
+        if(provincia.provincia == nombre)
+            provinciaObjeto = provincia
+    })
+    return provinciaObjeto;
+}
+
+let obtenerCiudad = (nombreProvincia, nombreCiudad) => {
+    let ciudadObjeto
+    let provincia = obtenerProvincia(nombreProvincia)
+    provincia.ciudades.forEach(ciudad =>{
+        if(ciudad.name == nombreCiudad)
+            ciudadObjeto = ciudad
+    })
+    return ciudadObjeto
+}
+
+let fechaActual = () =>{
+    let date = new Date();
+    return date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+} 
+let horaActual = () => new Date().toString().slice(16,24);
+
+let fechaHoraActual = () => {
+    return fechaActual()+"T"+horaActual()
+}
 let cargarFechaHora = () => {
     cargarFechaActual()
     cargarReloj()
@@ -31,18 +64,15 @@ let cargarReloj = () =>{
 
 let cargarNombreCiudad = (ciudad) => {document.getElementById("ciudad-header").textContent = ciudad}
 
-let cargarDatosCiudad = (nombreCiudad) => {
-    ciudadesEcuador.forEach(provincia =>{
-        provincia.ciudades.forEach(ciudad =>{
-            if(ciudad.name == nombreCiudad){
-                cargarDatos(ciudad)
-                return;
-            }
-        })
-    })
+let cargarDatosCiudad = (nombreProvincia, nombreCiudad) => {
+    let provincia = obtenerProvincia(nombreProvincia)
+    let ciudad = obtenerCiudad(nombreProvincia, nombreCiudad)
+    cargarDatos(provincia, ciudad)
+    provincia_activado = nombreProvincia
+    ciudad_activado = nombreCiudad
 }
 
-let cargarDatos = (ciudad) => {
+let cargarDatos = (provincia, ciudad) => {
     let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
             '&longitude='+ciudad.longitude.toString()+
             '&hourly=temperature_2m,precipitation,uv_index&timezone=auto'
@@ -54,7 +84,66 @@ let cargarDatos = (ciudad) => {
             cargarGraficos (responseJSON)
         })
         .catch(console.error);
-    cargarPronostico (ciudad)
+    cargarPronostico (provincia, ciudad)
+    localStorage.setItem("provincia-activado", provincia.provincia)
+    localStorage.setItem("ciudad-activado", ciudad.name)
+}
+
+let actualizarDatos = () => {
+    actualizarIndicadoresGraficos()
+    actualizarPronostico()
+    actualizarMonitoreo()
+
+    //setInterval(actualizarDatos,1000)
+}
+
+let actualizarIndicadoresGraficos = () =>{
+    let hoy = new Date()
+    let actualizarDate = new Date()
+    actualizarDate.setHours(0);actualizarDate.setMinutes(0);actualizarDate.setSeconds(0);actualizarDate.setMilliseconds(0)
+
+    if(hoy.getTime() == actualizarDate.getTime()){
+        location.reload()
+    }
+}
+
+let actualizarPronostico = () =>{
+    let lastUpdate = new Date(localStorage.getItem("last-update-prediccion"));
+
+    if(lastUpdate.getTime() == 0)
+        return;
+
+    let actualizarDate = new Date()
+    actualizarDate.setHours((actualizarDate.getHours()-(actualizarDate .getHours()%3)));actualizarDate.setMinutes(0);actualizarDate.setSeconds(0)
+
+    if (lastUpdate<actualizarDate){
+        console.log("Se actualizó pronóstico")
+        Object.keys(localStorage).forEach(item =>{
+            if(item.startsWith("Pronostico "))
+                localStorage.removeItem(item)
+        })
+        cargarPronostico(obtenerProvincia(provincia_activado), obtenerCiudad(provincia_activado,ciudad_activado))
+    }
+}
+
+let actualizarMonitoreo = () => {
+    let hoy = new Date()
+    let lastUpdate = new Date(localStorage.getItem("last-update-monitoreo"));
+
+    if(lastUpdate.getTime() == 0)
+        return;
+
+    let actualizarDate = new Date()
+    actualizarDate.setHours(7);actualizarDate.setMinutes(0);actualizarDate.setSeconds(0);
+
+    if (lastUpdate<actualizarDate && hoy>actualizarDate){
+        console.log("Se actualizó monitoreo")
+        Object.keys(localStorage).forEach(item =>{
+            if(item.startsWith("Monitoreo del"))
+                localStorage.removeItem(item)
+        })
+        cargarMonitoreo()
+    }
 }
 
 /* INDICADOR */
@@ -250,9 +339,10 @@ document.getElementById("btn-temperatura").onclick = () => {mostrarGraficoTemper
 
 /* PRONOSTICOS */
 
-let cargarPronostico = async (ciudad) => {
+let cargarPronostico = async (provincia, ciudad) => {
     // Lea la entrada de almacenamiento local
-    let cityStorage = localStorage.getItem(ciudad.name);
+    let itemName = "Pronostico "+provincia.provincia + " - " + ciudad.name
+    let cityStorage = localStorage.getItem(itemName);
 
     if (cityStorage == null) {
         try {
@@ -264,8 +354,10 @@ let cargarPronostico = async (ciudad) => {
             let response = await fetch(url)
             let responseText = await response.text()
             // Guarde la entrada de almacenamiento local
-            await localStorage.setItem(ciudad.name, responseText)
+            await localStorage.setItem(itemName, responseText)
             await parseXML(responseText)
+
+            await localStorage.setItem("last-update-prediccion", fechaHoraActual())
 
         } catch (error) {
             console.log(error)
@@ -315,7 +407,8 @@ let parseXML = (responseText) => {
   }
   
   let cargarMonitoreo = async () => {
-    let monitoreoStorage = localStorage.getItem("monitoreo")
+    let tag = "Monitoreo del "+fechaActual()
+    let monitoreoStorage = localStorage.getItem(tag)
     
     if(monitoreoStorage == null){
         let proxyURL = 'https://cors-anywhere.herokuapp.com/'
@@ -325,8 +418,10 @@ let parseXML = (responseText) => {
         let response = await fetch(endpoint);
         let responseText = await response.text();
 
-        await localStorage.setItem("monitoreo",responseText)
+        await localStorage.setItem(tag,responseText)
         await parseMonitoreo(responseText)
+
+        await localStorage.setItem("last-update-monitoreo", fechaHoraActual())
     }else{
         parseMonitoreo(monitoreoStorage)
     }
@@ -335,10 +430,9 @@ let parseXML = (responseText) => {
 
 let parseMonitoreo = async (responseText) => {
     const parser = new DOMParser();
-    const xml = parser.parseFromString(responseText, "text/html");
-
-    let elementoXML = xml.querySelector("#postcontent table");
-    let elementoDOM = document.getElementById("monitoreo");
+    const xml = await parser.parseFromString(responseText, "text/html");
+    let elementoXML = await xml.querySelector("#postcontent table");
+    let elementoDOM = document.getElementById("monitoreo-table");
 
     elementoDOM.innerHTML = elementoXML.outerHTML;
 }
@@ -392,6 +486,7 @@ let añadirItems = (selector, lista) => {
 let mostrarDatos = (event) => {
     let boton = document.getElementById("btn-mostrar-datos")
 
+    let selectProvincia = document.getElementById("selector-provincia").value
     let selectCiudad = event.target.value
 
     if (selectCiudad == "Seleccione ciudad"){
@@ -400,10 +495,12 @@ let mostrarDatos = (event) => {
     }else{
         boton.disabled = false
     }
-    boton.onclick = () =>{cargarDatosCiudad(selectCiudad)}
+    boton.onclick = () =>{cargarDatosCiudad(selectProvincia, selectCiudad)}
 }
 
 cargarFechaHora();
 cargarSelectorProvincia();
-cargarDatosCiudad("Guayaquil");
 cargarMonitoreo();
+cargarDatosCiudad(provincia_activado, ciudad_activado);
+
+actualizarDatos()
