@@ -94,7 +94,7 @@ let actualizarDatos = () => {
     actualizarPronostico()
     actualizarMonitoreo()
 
-    //setInterval(actualizarDatos,1000)
+    setInterval(actualizarDatos,1000)
 }
 
 let actualizarIndicadoresGraficos = () =>{
