@@ -75,7 +75,9 @@ let cargarDatosCiudad = (nombreProvincia, nombreCiudad) => {
 let cargarDatos = (provincia, ciudad) => {
     let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
             '&longitude='+ciudad.longitude.toString()+
-            '&hourly=temperature_2m,precipitation,uv_index&timezone=auto'
+            '&hourly=temperature_2m,precipitation,precipitation_probability,uv_index,uv_index_clear_sky'+
+            '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,uv_index_clear_sky_max'+
+            '&timezone=auto'
     cargarNombreCiudad(ciudad.name)
     fetch(URL)
         .then(responseText => responseText.json())
@@ -205,10 +207,10 @@ let cargarTemperatura = (tiempo, datos) => {
 /* GRAFICO */
 
 let cargarGraficos = (responseJSON) => {
-    let datosTiempo = responseJSON.hourly.time
-    let datosPrecipitacion = responseJSON.hourly.precipitation
-    let datosUV = responseJSON.hourly.uv_index
-    let datosTemperatura = responseJSON.hourly.temperature_2m
+    let datosTiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let datosPrecipitacion = [responseJSON.hourly.precipitation,responseJSON.hourly.precipitation_probability,responseJSON.daily.precipitation_probability_max]
+    let datosUV = [responseJSON.hourly.uv_index,responseJSON.hourly.uv_index_clear_sky,responseJSON.daily.uv_index_max,responseJSON.daily.uv_index_clear_sky_max]
+    let datosTemperatura = [responseJSON.hourly.temperature_2m,responseJSON.daily.temperature_2m_max,responseJSON.daily.temperature_2m_min]
 
     cargarGraficoPrecipitacion(datosTiempo, datosPrecipitacion)
     cargarGraficoUV(datosTiempo, datosUV)
@@ -231,19 +233,38 @@ let cargarGraficoPrecipitacion = (tiempo, datos) => {
 
     //Objeto de configuración del gráfico
     let config = {
-        type: 'line',
         data: {
-            labels: tiempo, 
             datasets: [{
+                xAxisID: 'x',
+                type: 'bar',
                 label: 'Precipitación',
-                data: datos,
-                borderColor: 'rgba(13, 110, 253,0.5)',
+                data: datos[0],
                 backgroundColor: 'rgba(13, 110, 253,1)',
+                yAxisID: 'y',
+            },{
+                xAxisID: 'x',
+                type: 'line',
+                label: 'Probabilidad de Precipitación',
+                data: datos[1],
+                borderColor: 'rgba(128, 180, 255,0.5)',
+                backgroundColor: 'rgba(128, 180, 255,1)',
+                yAxisID: 'y1',
+            },{
+                xAxisID: 'x1',
+                type: 'line',
+                label: 'Probabilidad de Precipitación Máxima',
+                data: datos[2],
+                borderColor: 'rgba(180, 0, 255,0.75)',
+                backgroundColor: 'rgba(180, 0, 255,1)',
+                yAxisID: 'y1',
             }]
         },
         options: {
             responsive: true,
-            scales: {x: {display: false}}
+            scales: {x: {labels: tiempo[0], display:false,},
+                    x1: {labels: tiempo[1]},
+                    y: {suggestedMax: 1,title: {display: true,text: 'mm'}},
+                    y1: {title: {display: true,text: '%'}}}
         }
     };
 
@@ -262,15 +283,35 @@ let cargarGraficoUV = (tiempo, datos) => {
     let config = {
         type: 'line',
         data: {
-            labels: tiempo, 
             datasets: [{
-                label: 'UV Index',
-                data: datos,
+                xAxisID: 'x',
+                label: 'Índice UV',
+                data: datos[0],
                 borderColor: 'rgba(255,200,0,0.5)',
                 backgroundColor: 'rgba(255,200,0,1)',
+            },{
+                xAxisID: 'x',
+                label: 'Índice UV con cielo azul',
+                data: datos[1],
+                borderColor: 'rgba(255,135,0,0.5)',
+                backgroundColor: 'rgba(255,135,0,1)',
+            },{
+                xAxisID: 'x1',
+                label: 'Índice UV Máximo',
+                data: datos[2],
+                borderColor: 'rgba(180, 0, 255,0.75)',
+                backgroundColor: 'rgba(180, 0, 255,1)',
+            },{
+                xAxisID: 'x1',
+                label: 'Índice UV con cielo azul Máximo',
+                data: datos[3],
+                borderColor: 'rgba(0,0,0,0.5)',
+                backgroundColor: 'rgba(0,0,0,1)',
             }]
         },
-        options: {scales: {x: {display: false}}}
+        options: {scales: {x: {labels: tiempo[0], display:false},
+                        x1: {labels: tiempo[1]}}
+        }
     };
 
     //Objeto con la instanciación del gráfico
@@ -289,13 +330,28 @@ let cargarGraficoTemperatura = (tiempo, datos) => {
         data: {
             labels: tiempo, 
             datasets: [{
-                label: 'Temperature [2m]',
-                data: datos,
-                borderColor: 'rgba(108, 117, 125,0.5)',
-                backgroundColor: 'rgba(108, 117, 125,1)',
+                xAxisID: 'x',
+                label: 'Temperatura [2m]',
+                data: datos[0],
+                borderColor: 'rgba(100, 100, 100,0.5)',
+                backgroundColor: 'rgba(100, 100, 100,1)',
+            },{
+                xAxisID: 'x1',
+                label: 'Temperatura máxima [2m]',
+                data: datos[1],
+                borderColor: 'rgba(180, 0, 255,0.75)',
+                backgroundColor: 'rgba(180, 0, 255,1)',
+            },{
+                xAxisID: 'x1',
+                label: 'Temperatura mínima [2m]',
+                data: datos[2],
+                borderColor: 'rgba(0, 200, 0,0.75)',
+                backgroundColor: 'rgba(0, 200, 0,1)',
             }]
         },
-        options: {scales: {x: {display: false}}}
+        options: {scales: {x: {labels: tiempo[0], display:false},
+                        x1: {labels: tiempo[1]}}
+        }
     };
 
     //Objeto con la instanciación del gráfico
@@ -420,7 +476,14 @@ let parseXML = (responseText) => {
   }
   
   let cargarMonitoreo = async () => {
-    let tag = "Monitoreo del "+fechaActual()
+    let fechaMonitoreo = new Date(fechaActual()+"T07:00:00")
+    let fecha = new Date()
+    
+    if(fecha < fechaMonitoreo)
+        fecha.setDate(fecha.getDate()-1)
+    let fechaTag = fecha.getFullYear()+"-"+(fecha.getMonth()+1)+"-"+fecha.getDate();
+
+    let tag = "Monitoreo del "+ fechaTag
     let monitoreoStorage = localStorage.getItem(tag)
     
     if(monitoreoStorage == null){
@@ -438,7 +501,6 @@ let parseXML = (responseText) => {
     }else{
         parseMonitoreo(monitoreoStorage)
     }
-    
 }
 
 let parseMonitoreo = async (responseText) => {
