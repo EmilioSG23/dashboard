@@ -494,8 +494,6 @@ let parseXML = (responseText) => {
 
     let tag = "Monitoreo del "+ fechaTag
     let monitoreoStorage = localStorage.getItem(tag)
-    
-    console.log(monitoreoStorage)
 
     if(monitoreoStorage == null){
         let proxyURL = 'https://cors-anywhere.herokuapp.com/'
