@@ -11,6 +11,11 @@
     font-family: 'Nunito',sans-serif;
 }
 
+#indicadores table span {
+    font-family: 'Ubuntu',sans-serif;
+    font-size: 18px;
+}
+
 #monitoreo-table table.default tr:not(:nth-child(1)):not(:nth-child(2)) {
     display: none;
 }
@@ -27,5 +32,11 @@
 @media screen and (max-width: 1200px) {
     #monitoreo-table table.default img{
         display: none;
+    }
+}
+@media screen and (max-width: 576px) {
+    #indicadores table span {
+        font-family: 'Ubuntu',sans-serif;
+        font-size: 16px;
     }
 }

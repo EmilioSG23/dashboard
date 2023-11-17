@@ -6,6 +6,33 @@ import {
     ciudadesEcuador
 } from './cities.js';
 
+/* Utilidades */
+let responseJSONAsync = async (URL) => {
+    let responseText;
+    try{
+        let response = await fetch(URL)
+        responseText = await response.json()
+    }catch(error){console.log(error)}
+    return responseText;
+}
+
+let responseTextAsync = async (URL) => {
+    let responseText;
+    try{
+        let response = await fetch(URL)
+        responseText = await response.text()
+    }catch(error){console.log(error)}
+    return responseText;
+}
+
+let removeAllItemsFromLS = (name) =>{
+    Object.keys(localStorage).forEach(item =>{
+        if(item.startsWith(name))
+            localStorage.removeItem(item)
+    })
+}
+
+/* Variables globales */
 let grafico_activado = "temperatura"
 let provincia_activado = localStorage.getItem("provincia-activado")
 let ciudad_activado = localStorage.getItem("ciudad-activado")
@@ -15,6 +42,7 @@ if(provincia_activado==null || ciudad_activado==null){
     ciudad_activado= "Guayaquil"
 }
 
+/* Obtención de Objetos: Provincia y Ciudad */
 let obtenerProvincia = (nombre) => {
     let provinciaObjeto
     ciudadesEcuador.forEach(provincia=>{
@@ -34,6 +62,11 @@ let obtenerCiudad = (nombreProvincia, nombreCiudad) => {
     return ciudadObjeto
 }
 
+let obtenerCiudadActivado = () => {
+    return obtenerCiudad(provincia_activado,ciudad_activado)
+}
+
+/* Obtención de Fechas y carga */
 let fechaActual = () =>{
     let date = new Date();
     return date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
@@ -62,35 +95,30 @@ let cargarReloj = () =>{
     setInterval(cargarReloj,1000)
 }
 
+/* Carga de datos de la ciudad en el documento */
 let cargarNombreCiudad = (ciudad) => {document.getElementById("ciudad-header").textContent = ciudad}
 
 let cargarDatosCiudad = (nombreProvincia, nombreCiudad) => {
     let provincia = obtenerProvincia(nombreProvincia)
     let ciudad = obtenerCiudad(nombreProvincia, nombreCiudad)
+
+    cargarNombreCiudad(ciudad.name)
     cargarDatos(provincia, ciudad)
+
     provincia_activado = nombreProvincia
     ciudad_activado = nombreCiudad
 }
 
-let cargarDatos = (provincia, ciudad) => {
-    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
-            '&longitude='+ciudad.longitude.toString()+
-            '&hourly=temperature_2m,precipitation,precipitation_probability,uv_index,uv_index_clear_sky'+
-            '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,uv_index_clear_sky_max'+
-            '&timezone=auto'
-    cargarNombreCiudad(ciudad.name)
-    fetch(URL)
-        .then(responseText => responseText.json())
-        .then(responseJSON => {
-            cargarIndicadores (responseJSON)
-            cargarGraficos (responseJSON)
-        })
-        .catch(console.error);
+let cargarDatos = async (provincia, ciudad) => {
+    cargarIndicadores (ciudad)
+    await cargarGrafico(ciudad)
     cargarPronostico (provincia, ciudad)
+
     localStorage.setItem("provincia-activado", provincia.provincia)
     localStorage.setItem("ciudad-activado", ciudad.name)
 }
 
+/* Actualización de Datos Automáticos */
 let actualizarDatos = () => {
     actualizarIndicadoresGraficos()
     actualizarPronostico()
@@ -107,9 +135,8 @@ let actualizarIndicadoresGraficos = () =>{
     let actualizarDate = new Date()
     actualizarDate.setHours(0);actualizarDate.setMinutes(0);actualizarDate.setSeconds(0);actualizarDate.setMilliseconds(0)
 
-    if(hoy.getTime() == actualizarDate.getTime()){
+    if(hoy.getTime() == actualizarDate.getTime())
         location.reload()
-    }
 }
 
 let actualizarPronostico = () =>{
@@ -123,10 +150,7 @@ let actualizarPronostico = () =>{
 
     if (lastUpdate<actualizarDate){
         console.log("Se actualizó pronóstico")
-        Object.keys(localStorage).forEach(item =>{
-            if(item.startsWith("Pronostico "))
-                localStorage.removeItem(item)
-        })
+        removeAllItemsFromLS("Pronostico ")
         cargarPronostico(obtenerProvincia(provincia_activado), obtenerCiudad(provincia_activado,ciudad_activado))
     }
 }
@@ -143,16 +167,19 @@ let actualizarMonitoreo = () => {
 
     if (lastUpdate<actualizarDate && hoy>actualizarDate){
         console.log("Se actualizó monitoreo")
-        Object.keys(localStorage).forEach(item =>{
-            if(item.startsWith("Monitoreo del"))
-                localStorage.removeItem(item)
-        })
+        removeAllItemsFromLS("Monitoreo del")
         cargarMonitoreo()
     }
 }
 
-/* INDICADOR */
-let cargarIndicadores = (responseJSON) => {
+/* Carga de Indicadores de Precipitación, UV y Temperatura */
+let cargarIndicadores = async (ciudad) => {
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
+            '&longitude='+ciudad.longitude.toString()+
+            '&hourly=temperature_2m,precipitation,uv_index'+
+            '&timezone=auto'
+    let responseJSON = await responseJSONAsync(URL)
+
     let datosTiempo = responseJSON.hourly.time
     let datosPrecipitacion = responseJSON.hourly.precipitation
     let datosUV = responseJSON.hourly.uv_index
@@ -204,30 +231,34 @@ let cargarTemperatura = (tiempo, datos) => {
     document.getElementById("temperaturaMaxValue").textContent = `Max ${temperatura.max} [°C]`;
 }
 
-/* GRAFICO */
-
-let cargarGraficos = (responseJSON) => {
-    let datosTiempo = [responseJSON.hourly.time,responseJSON.daily.time]
-    let datosPrecipitacion = [responseJSON.hourly.precipitation,responseJSON.hourly.precipitation_probability,responseJSON.daily.precipitation_probability_max]
-    let datosUV = [responseJSON.hourly.uv_index,responseJSON.hourly.uv_index_clear_sky,responseJSON.daily.uv_index_max,responseJSON.daily.uv_index_clear_sky_max]
-    let datosTemperatura = [responseJSON.hourly.temperature_2m,responseJSON.daily.temperature_2m_max,responseJSON.daily.temperature_2m_min]
-
-    cargarGraficoPrecipitacion(datosTiempo, datosPrecipitacion)
-    cargarGraficoUV(datosTiempo, datosUV)
-    cargarGraficoTemperatura(datosTiempo, datosTemperatura)
-
+/* Carga de Gráficos Chart.js de una ciudad */
+let cargarGrafico = (ciudad) => {
     if(grafico_activado == "precipitacion")
-        mostrarGraficoPrecipitacion()
+        cargarGraficoPrecipitacion(ciudad)
     else if (grafico_activado == "uv")
-        mostrarGraficoUV()
+        cargarGraficoUV(ciudad)
     else if(grafico_activado == "temperatura")
-        mostrarGraficoTemperatura()
+        cargarGraficoTemperatura(ciudad)
+    else
+        cargarGraficoTemperatura(ciudad)
 }
 
-let cargarGraficoPrecipitacion = (tiempo, datos) => {
-    let plotRef = document.getElementById('grafico-precipitacion');
+let cargarGraficoPrecipitacion = async (ciudad) => {
+    if(grafico_activado == "precipitacion" && Chart.getChart("grafico") != null && ciudad.name == ciudad_activado)
+        return;
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
+            '&longitude='+ciudad.longitude.toString()+
+            '&hourly=precipitation,precipitation_probability'+
+            '&daily=precipitation_probability_max'+
+            '&timezone=auto'
+    let responseJSON = await responseJSONAsync(URL)
 
-    let chart = Chart.getChart("grafico-precipitacion")
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let datos = [responseJSON.hourly.precipitation,responseJSON.hourly.precipitation_probability,responseJSON.daily.precipitation_probability_max]
+
+    let plotRef = document.getElementById('grafico');
+
+    let chart = Chart.getChart("grafico")
     if(chart)
         chart.destroy()
 
@@ -270,12 +301,25 @@ let cargarGraficoPrecipitacion = (tiempo, datos) => {
 
     //Objeto con la instanciación del gráfico
     chart  = new Chart(plotRef, config);
+    grafico_activado = "precipitacion"
 }
 
-let cargarGraficoUV = (tiempo, datos) => {
-    let plotRef = document.getElementById('grafico-uv');
+let cargarGraficoUV = async (ciudad) => {
+    if(grafico_activado == "uv" && Chart.getChart("grafico") != null && ciudad.name == ciudad_activado)
+        return;
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
+            '&longitude='+ciudad.longitude.toString()+
+            '&hourly=uv_index,uv_index_clear_sky'+
+            '&daily=uv_index_max,uv_index_clear_sky_max'+
+            '&timezone=auto'
+    let responseJSON = await responseJSONAsync(URL)
 
-    let chart = Chart.getChart("grafico-uv")
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let datos = [responseJSON.hourly.uv_index,responseJSON.hourly.uv_index_clear_sky,responseJSON.daily.uv_index_max,responseJSON.daily.uv_index_clear_sky_max]
+
+    let plotRef = document.getElementById('grafico');
+
+    let chart = Chart.getChart("grafico")
     if(chart)
         chart.destroy()
 
@@ -316,11 +360,24 @@ let cargarGraficoUV = (tiempo, datos) => {
 
     //Objeto con la instanciación del gráfico
     chart  = new Chart(plotRef, config);
+    grafico_activado = "uv"
 }
-let cargarGraficoTemperatura = (tiempo, datos) => {
-    let plotRef = document.getElementById('grafico-temperatura');
+let cargarGraficoTemperatura = async (ciudad) => {
+    if(grafico_activado == "temperatura" && Chart.getChart("grafico") != null && ciudad.name == ciudad_activado)
+        return;
+    let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
+            '&longitude='+ciudad.longitude.toString()+
+            '&hourly=temperature_2m'+
+            '&daily=temperature_2m_max,temperature_2m_min'+
+            '&timezone=auto'
+    let responseJSON = await responseJSONAsync(URL)
 
-    let chart = Chart.getChart("grafico-temperatura")
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let datos = [responseJSON.hourly.temperature_2m,responseJSON.daily.temperature_2m_max,responseJSON.daily.temperature_2m_min]
+
+    let plotRef = document.getElementById('grafico');
+
+    let chart = Chart.getChart("grafico")
     if(chart)
         chart.destroy()
 
@@ -356,81 +413,32 @@ let cargarGraficoTemperatura = (tiempo, datos) => {
 
     //Objeto con la instanciación del gráfico
     chart  = new Chart(plotRef, config);
-}
-
-let mostrarGraficoPrecipitacion = () => {
-    let precipitacion = document.getElementById('grafico-precipitacion')
-    let uv = document.getElementById('grafico-uv')
-    let temperatura = document.getElementById('grafico-temperatura')
-
-    mostrarGrafico(precipitacion)
-    ocultarGrafico(uv)
-    ocultarGrafico(temperatura)
-    
-    grafico_activado = "precipitacion"
-}
-let mostrarGraficoUV = () => {
-    let precipitacion = document.getElementById('grafico-precipitacion')
-    let uv = document.getElementById('grafico-uv')
-    let temperatura = document.getElementById('grafico-temperatura')
-
-    ocultarGrafico(precipitacion)
-    mostrarGrafico(uv)
-    ocultarGrafico(temperatura)
-
-    grafico_activado = "uv"
-}
-let mostrarGraficoTemperatura = () => {
-    let precipitacion = document.getElementById('grafico-precipitacion')
-    let uv = document.getElementById('grafico-uv')
-    let temperatura = document.getElementById('grafico-temperatura')
-
-    ocultarGrafico(precipitacion)
-    ocultarGrafico(uv)
-    mostrarGrafico(temperatura)
-
     grafico_activado = "temperatura"
 }
 
-let mostrarGrafico = (plot) => {
-    if(plot.classList.contains("d-none"))
-        plot.classList.remove("d-none")
-}
-let ocultarGrafico = (plot) => {
-    if(!plot.classList.contains("d-none"))
-        plot.classList.add("d-none")
-}
+/* Botones de Selección de Gráfico a mostrar en pantalla */
+document.getElementById("btn-precipitacion").onclick = () => {cargarGraficoPrecipitacion(obtenerCiudadActivado());}
+document.getElementById("btn-uv").onclick = () => {cargarGraficoUV(obtenerCiudadActivado());}
+document.getElementById("btn-temperatura").onclick = () => {cargarGraficoTemperatura(obtenerCiudadActivado());}
 
-/* Botones */
-document.getElementById("btn-precipitacion").onclick = () => {mostrarGraficoPrecipitacion();}
-document.getElementById("btn-uv").onclick = () => {mostrarGraficoUV();}
-document.getElementById("btn-temperatura").onclick = () => {mostrarGraficoTemperatura();}
-
-/* PRONOSTICOS */
-
+/* Carga de los Pronósticos */
 let cargarPronostico = async (provincia, ciudad) => {
     // Lea la entrada de almacenamiento local
     let itemName = "Pronostico "+provincia.provincia + " - " + ciudad.name
     let cityStorage = localStorage.getItem(itemName);
 
     if (cityStorage == null) {
-        try {
-            //API key
-            let APIkey = '52ef10cd68238328de4f767883bcda7c';
-            //let url = `https://api.openweathermap.org/data/2.5/forecast?q=${ciudad.name}&mode=xml&appid=${APIkey}`;
-            let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${ciudad.latitude}&lon=${ciudad.longitude}&mode=xml&appid=${APIkey}`;
+        //API key
+        let APIkey = '52ef10cd68238328de4f767883bcda7c';
+        //let url = `https://api.openweathermap.org/data/2.5/forecast?q=${ciudad.name}&mode=xml&appid=${APIkey}`;
+        let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${ciudad.latitude}&lon=${ciudad.longitude}&mode=xml&appid=${APIkey}`;
 
-            let response = await fetch(url)
-            let responseText = await response.text()
-            // Guarde la entrada de almacenamiento local
-            await localStorage.setItem(itemName, responseText)
-            await parseXML(responseText)
+        let responseText = await responseTextAsync(url)
+        // Guarde la entrada de almacenamiento local
+        await localStorage.setItem(itemName, responseText)
+        await parseXML(responseText)
 
-            await localStorage.setItem("last-update-prediccion", fechaHoraActual())
-
-        } catch (error) {
-            console.log(error)
-        }
+        await localStorage.setItem("last-update-prediccion", fechaHoraActual())
     }else{
         // Procese un valor previo
         parseXML(cityStorage)
@@ -475,6 +483,7 @@ let parseXML = (responseText) => {
     
   }
   
+  /* Carga de Monitoreo con CORS */
   let cargarMonitoreo = async () => {
     let fechaMonitoreo = new Date(fechaActual()+"T07:00:00")
     let fecha = new Date()
@@ -486,6 +495,8 @@ let parseXML = (responseText) => {
     let tag = "Monitoreo del "+ fechaTag
     let monitoreoStorage = localStorage.getItem(tag)
     
+    console.log(monitoreoStorage)
+
     if(monitoreoStorage == null){
         let proxyURL = 'https://cors-anywhere.herokuapp.com/'
         let endpoint = proxyURL + 'https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/'
@@ -509,10 +520,12 @@ let parseMonitoreo = async (responseText) => {
     let elementoXML = await xml.querySelector("#postcontent table");
     let elementoDOM = document.getElementById("monitoreo-table");
 
-    elementoDOM.innerHTML = elementoXML.outerHTML;
+    try{
+        elementoDOM.innerHTML = elementoXML.outerHTML;
+    }catch(error){removeAllItemsFromLS("Monitoreo del")}
 }
 
-/* SELECTOR DE CIUDADES */
+/* Carga de Selector de Ciudad para muestra de Datos */
 let cargarSelectorProvincia = () => {
     let selector_provincia = document.getElementById("selector-provincia")
     let provincias = []
@@ -536,12 +549,13 @@ let cargarSelectorCiudad = (event) => {
     }else{
         selector_ciudad.disabled = false;
     }
-    let ciudades = cargarCiudadesProvincia(selectProvincia)
+    let ciudades = cargarListaCiudadesProvincia(selectProvincia)
     añadirItems(selector_ciudad,ciudades)
     selector_ciudad.addEventListener("change", mostrarDatos)
 }
 
-let cargarCiudadesProvincia = (nombreProvincia) =>{
+//Carga lista de Ciudades
+let cargarListaCiudadesProvincia = (nombreProvincia) =>{
     let ciudades = []
     ciudadesEcuador.forEach(provincia =>{
         if(provincia.provincia == nombreProvincia)
@@ -573,9 +587,9 @@ let mostrarDatos = (event) => {
     boton.onclick = () =>{cargarDatosCiudad(selectProvincia, selectCiudad)}
 }
 
-cargarFechaHora();
-cargarSelectorProvincia();
-cargarMonitoreo();
-cargarDatosCiudad(provincia_activado, ciudad_activado);
+cargarFechaHora()
+cargarSelectorProvincia()
+cargarMonitoreo()
+cargarDatosCiudad(provincia_activado, ciudad_activado)
 
 actualizarDatos()
