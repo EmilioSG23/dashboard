@@ -1,3 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;400;800&display=swap');
+
+:root{
+    --bs-body-font-family: 'Ubuntu';
+}
+
+.card-header.h4 span{
+    font-family: 'Nunito',sans-serif;
+}
+
 #monitoreo-table table.default tr:not(:nth-child(1)):not(:nth-child(2)) {
     display: none;
+}
+
+#monitoreo #monitoreo-footer a::after{
+    content: attr(href);
+}
+
+#ciudad-header{
+    font-family: 'Nunito', sans-serif;
+    font-size: 50px;
+}
+
+@media screen and (max-width: 1200px) {
+    #monitoreo-table table.default img{
+        display: none;
+    }
 }

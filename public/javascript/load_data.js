@@ -6,7 +6,7 @@ import {
     ciudadesEcuador
 } from './cities.js';
 
-let grafico_activado = "precipitacion"
+let grafico_activado = "temperatura"
 let provincia_activado = localStorage.getItem("provincia-activado")
 let ciudad_activado = localStorage.getItem("ciudad-activado")
 
@@ -237,9 +237,14 @@ let cargarGraficoPrecipitacion = (tiempo, datos) => {
             datasets: [{
                 label: 'Precipitación',
                 data: datos,
+                borderColor: 'rgba(13, 110, 253,0.5)',
+                backgroundColor: 'rgba(13, 110, 253,1)',
             }]
         },
-        options: {scales: {x: {display: false}}}
+        options: {
+            responsive: true,
+            scales: {x: {display: false}}
+        }
     };
 
     //Objeto con la instanciación del gráfico
@@ -261,6 +266,7 @@ let cargarGraficoUV = (tiempo, datos) => {
             datasets: [{
                 label: 'UV Index',
                 data: datos,
+                borderColor: 'rgba(255,200,0,0.5)',
                 backgroundColor: 'rgba(255,200,0,1)',
             }]
         },
@@ -285,7 +291,8 @@ let cargarGraficoTemperatura = (tiempo, datos) => {
             datasets: [{
                 label: 'Temperature [2m]',
                 data: datos,
-                backgroundColor: 'rgba(150,150,150,1)',
+                borderColor: 'rgba(108, 117, 125,0.5)',
+                backgroundColor: 'rgba(108, 117, 125,1)',
             }]
         },
         options: {scales: {x: {display: false}}}
@@ -389,7 +396,7 @@ let parseXML = (responseText) => {
 
     timeArr.forEach(time => {
         
-        let from = time.getAttribute("from").replace("T", " ")
+        let from = time.getAttribute("from").replace("T", " ").slice(0,16)
         let humidity = time.querySelector("humidity").getAttribute("value")
         let windSpeed = time.querySelector("windSpeed").getAttribute("mps")
         let precipitation = time.querySelector("precipitation").getAttribute("probability")

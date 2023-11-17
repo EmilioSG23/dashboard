@@ -13,7 +13,7 @@
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
     <body class="sb-nav-fixed">
-        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
             <!-- Sidebar Toggle-->
             <button class="btn btn-link btn-sm" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Brand-->
@@ -73,7 +73,7 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 id="ciudad-header" class="mt-4 text-center">Ciudad</h1>
+                        <h1 id="ciudad-header" class="mt-4 text-center fw-bolder">Ciudad</h1>
                         <div class="text-center h3 text-muted">
                             <div>
                                 <span class="fw-bolder">Fecha: </span>
@@ -85,11 +85,11 @@
                         </div>
                         <section class="row">
                             <!-- Indicadores -->
-                            <section id="indicadores" class="col-xl-4">
+                            <section id="indicadores" class="col-xxl-4">
                                 <div class="card mb-4">
                                     <div class="card-header bg-dark fw-bolder text-white h4">
                                         <i class="fas fa-thermometer-half me-1"></i>
-                                        Indicadores
+                                        <span>Indicadores</span>
                                     </div>
                                     <div class="card-body row">
                                         <div class="h5 fw-bolder text-center">
@@ -118,7 +118,7 @@
                                         </div>
                                         <div class="h5 fw-bolder text-center py-4">
                                             <div class="pb-3 text-warning">
-                                                <i class="fas fa-cloud-rain me-1"></i>
+                                                <i class="fas fa-sun me-1"></i>
                                                 <span>Rayos Ultravioletas</span>
                                             </div>
                                             <table class="table fs-5 fw-normal">
@@ -142,7 +142,7 @@
                                         </div>
                                         <div class="h5 fw-bolder text-center">
                                             <div class="pb-3 text-secondary">
-                                                <i class="fas fa-cloud-rain me-1"></i>
+                                                <i class="fas fa-temperature-full me-1"></i>
                                                 <span>Temperatura</span>
                                             </div>
                                             <table class="table fs-5 fw-normal">
@@ -170,21 +170,28 @@
                             <!-- Indicadores -->
 
                             <!-- Gráficos -->
-                            <section id="graficos" class="col-xl-8">
+                            <section id="graficos" class="col-xxl-8">
                                 <div class="card mb-4">
                                     <div class="card-header bg-dark fw-bolder text-white h4">
-                                        <i class="fas fa-thermometer-half me-1"></i>
-                                        Gráficos
+                                        <i class="fas fa-area-chart me-1"></i>
+                                        <span>Gráficos</span>
                                     </div>
                                     <div class="card-body text-center">
                                         <div>
-                                            <button id="btn-precipitacion" type="button" class="btn btn-primary fw-bolder">Precipitación</button>
-                                            <button id="btn-uv" type="button" class="btn btn-warning fw-bolder">Rayos Ultravioletas</button>
-                                            <button id="btn-temperatura" type="button" class="btn btn-secondary fw-bolder">Temperatura</button>
+                                            <button id="btn-precipitacion" type="button" class="btn btn-primary fw-bolder">
+                                                <i class="fas fa-cloud-rain me-1"></i>
+                                                <span class="d-none d-sm-inline">Precipitación</span>
+                                            </button>
+                                            <button id="btn-uv" type="button" class="btn btn-warning fw-bolder">
+                                                <i class="fas fa-sun me-1"></i>
+                                                <span class="d-none d-sm-inline">Rayos Ultravioletas</span></button>
+                                            <button id="btn-temperatura" type="button" class="btn btn-secondary fw-bolder">
+                                                <i class="fas fa-temperature-full me-1"></i>
+                                                <span class="d-none d-sm-inline">Temperatura</span></button>
                                         </div>
-                                        <canvas id="grafico-precipitacion" width="100%" height="31"></canvas>
-                                        <canvas id="grafico-uv" width="100%" height="31"></canvas>
-                                        <canvas id="grafico-temperatura" width="100%" height="31"></canvas>
+                                        <canvas id="grafico-precipitacion" width="100%" height="31%"></canvas>
+                                        <canvas id="grafico-uv" width="100%" height="31%"></canvas>
+                                        <canvas id="grafico-temperatura" width="100%" height="31%"></canvas>
                                     </div>
                                 </div>
                             </section>
@@ -195,9 +202,9 @@
                         <section id="pronostico" class="card mb-4">
                             <div class="card-header bg-dark fw-bolder text-white h4">
                                 <i class="fas fa-search me-1"></i>
-                                Pronóstico para los próximos 5 días
+                                <span>Pronóstico para los próximos 5 días</span>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body table-responsive-sm">
                                 <table class="table table-sm table-hover text-center">
                                     <thead>
                                         <tr>
@@ -219,14 +226,19 @@
                         <section id="monitoreo" class="card mb-4">
                             <div class="card-header bg-dark fw-bolder text-white h4">
                                 <i class="fas fa-search me-1"></i>
-                                Mapa de monitoreo de amenaza de inundaciones bajo pronóstico de precipitaciones
+                                <span>Mapa de monitoreo de amenaza de inundaciones bajo pronóstico de precipitaciones</span>
                             </div>
                             <div class="card-body">
                                 <div class="col">
                                     <div id="monitoreo-section" class="card">
-                                        <div id="monitoreo-table" class="card-body"></div>
+                                        <div id="monitoreo-table" class="card-body  table-responsive-sm"></div>
                                     </div>
-                                    <span class="text-muted">Tomado de: <a href="https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/">https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/</a></span>
+                                    <div id="monitoreo-footer">
+                                        <div><span class="text-muted">Tomado de: 
+                                            <a href="https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/" target="_blank"></a></span></div>
+                                        <div><span class="text-muted">Si no ve la sección de monitoreo, haga clic aquí y active su prueba CORS: 
+                                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"></a></span></div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -251,8 +263,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="public/javascript/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="assets/demo/chart-area-demo.js"></script>
-        <script src="assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
 
         <!-- Static data -->
