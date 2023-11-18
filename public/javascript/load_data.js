@@ -102,8 +102,8 @@ let cargarDatosCiudad = (nombreProvincia, nombreCiudad) => {
     let provincia = obtenerProvincia(nombreProvincia)
     let ciudad = obtenerCiudad(nombreProvincia, nombreCiudad)
 
-    cargarNombreCiudad(ciudad.name)
     cargarDatos(provincia, ciudad)
+    cargarNombreCiudad(ciudad.name)
 
     provincia_activado = nombreProvincia
     ciudad_activado = nombreCiudad
@@ -233,6 +233,7 @@ let cargarTemperatura = (tiempo, datos) => {
 
 /* Carga de Gráficos Chart.js de una ciudad */
 let cargarGrafico = (ciudad) => {
+    console.log(grafico_activado)
     if(grafico_activado == "precipitacion")
         cargarGraficoPrecipitacion(ciudad)
     else if (grafico_activado == "uv")
@@ -246,18 +247,15 @@ let cargarGrafico = (ciudad) => {
 let cargarGraficoPrecipitacion = async (ciudad) => {
     if(grafico_activado == "precipitacion" && Chart.getChart("grafico") != null && ciudad.name == ciudad_activado)
         return;
+
     let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
             '&longitude='+ciudad.longitude.toString()+
-            '&hourly=precipitation,precipitation_probability'+
-            '&daily=precipitation_probability_max'+
-            '&timezone=auto'
+            '&hourly=precipitation,precipitation_probability'+'&daily=precipitation_probability_max'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-
     let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
     let datos = [responseJSON.hourly.precipitation,responseJSON.hourly.precipitation_probability,responseJSON.daily.precipitation_probability_max]
 
     let plotRef = document.getElementById('grafico');
-
     let chart = Chart.getChart("grafico")
     if(chart)
         chart.destroy()
@@ -277,7 +275,7 @@ let cargarGraficoPrecipitacion = async (ciudad) => {
                 type: 'line',
                 label: 'Probabilidad de Precipitación',
                 data: datos[1],
-                borderColor: 'rgba(128, 180, 255,0.5)',
+                borderColor: 'rgba(128, 180, 255,0.75)',
                 backgroundColor: 'rgba(128, 180, 255,1)',
                 yAxisID: 'y1',
             },{
@@ -290,12 +288,11 @@ let cargarGraficoPrecipitacion = async (ciudad) => {
                 yAxisID: 'y1',
             }]
         },
-        options: {
-            responsive: true,
+        options: {responsive: true,
             scales: {x: {labels: tiempo[0], display:false,},
                     x1: {labels: tiempo[1]},
                     y: {suggestedMax: 1,title: {display: true,text: 'mm'}},
-                    y1: {title: {display: true,text: '%'}}}
+                    y1: {suggestedMax:100, title: {display: true,text: '%'}}}
         }
     };
 
@@ -307,13 +304,11 @@ let cargarGraficoPrecipitacion = async (ciudad) => {
 let cargarGraficoUV = async (ciudad) => {
     if(grafico_activado == "uv" && Chart.getChart("grafico") != null && ciudad.name == ciudad_activado)
         return;
+
     let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
             '&longitude='+ciudad.longitude.toString()+
-            '&hourly=uv_index,uv_index_clear_sky'+
-            '&daily=uv_index_max,uv_index_clear_sky_max'+
-            '&timezone=auto'
+            '&hourly=uv_index,uv_index_clear_sky'+'&daily=uv_index_max,uv_index_clear_sky_max'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-
     let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
     let datos = [responseJSON.hourly.uv_index,responseJSON.hourly.uv_index_clear_sky,responseJSON.daily.uv_index_max,responseJSON.daily.uv_index_clear_sky_max]
 
@@ -331,13 +326,13 @@ let cargarGraficoUV = async (ciudad) => {
                 xAxisID: 'x',
                 label: 'Índice UV',
                 data: datos[0],
-                borderColor: 'rgba(255,200,0,0.5)',
+                borderColor: 'rgba(255,200,0,0.75)',
                 backgroundColor: 'rgba(255,200,0,1)',
             },{
                 xAxisID: 'x',
                 label: 'Índice UV con cielo azul',
                 data: datos[1],
-                borderColor: 'rgba(255,135,0,0.5)',
+                borderColor: 'rgba(255,135,0,0.75)',
                 backgroundColor: 'rgba(255,135,0,1)',
             },{
                 xAxisID: 'x1',
@@ -349,12 +344,13 @@ let cargarGraficoUV = async (ciudad) => {
                 xAxisID: 'x1',
                 label: 'Índice UV con cielo azul Máximo',
                 data: datos[3],
-                borderColor: 'rgba(0,0,0,0.5)',
+                borderColor: 'rgba(0,0,0,0.75)',
                 backgroundColor: 'rgba(0,0,0,1)',
             }]
         },
-        options: {scales: {x: {labels: tiempo[0], display:false},
-                        x1: {labels: tiempo[1]}}
+        options: {responsive: true,
+            scales: {x: {labels: tiempo[0], display:false},
+                    x1: {labels: tiempo[1]}}
         }
     };
 
@@ -367,11 +363,8 @@ let cargarGraficoTemperatura = async (ciudad) => {
         return;
     let URL = 'https://api.open-meteo.com/v1/forecast?latitude='+ciudad.latitude.toString()+
             '&longitude='+ciudad.longitude.toString()+
-            '&hourly=temperature_2m'+
-            '&daily=temperature_2m_max,temperature_2m_min'+
-            '&timezone=auto'
+            '&hourly=temperature_2m'+'&daily=temperature_2m_max,temperature_2m_min'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-
     let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
     let datos = [responseJSON.hourly.temperature_2m,responseJSON.daily.temperature_2m_max,responseJSON.daily.temperature_2m_min]
 
@@ -390,7 +383,7 @@ let cargarGraficoTemperatura = async (ciudad) => {
                 xAxisID: 'x',
                 label: 'Temperatura [2m]',
                 data: datos[0],
-                borderColor: 'rgba(100, 100, 100,0.5)',
+                borderColor: 'rgba(100, 100, 100,0.75)',
                 backgroundColor: 'rgba(100, 100, 100,1)',
             },{
                 xAxisID: 'x1',
@@ -406,8 +399,10 @@ let cargarGraficoTemperatura = async (ciudad) => {
                 backgroundColor: 'rgba(0, 200, 0,1)',
             }]
         },
-        options: {scales: {x: {labels: tiempo[0], display:false},
-                        x1: {labels: tiempo[1]}}
+        options: {responsive:true,
+            scales: {x: {labels: tiempo[0], display:false},
+                    x1: {labels: tiempo[1]},
+                    y: {title:{display:true, text: "C°"}}}
         }
     };
 

@@ -11,6 +11,11 @@
     font-family: 'Nunito',sans-serif;
 }
 
+#indicadores .card-body.row .card{
+    padding-right: 0;
+    padding-left: 0;
+}
+
 #indicadores table span {
     font-family: 'Ubuntu',sans-serif;
     font-size: 18px;
@@ -29,11 +34,11 @@
     font-size: 50px;
 }
 
-@media screen and (max-width: 1200px) {
+/*@media screen and (max-width: 1200px) {
     #monitoreo-table table.default img{
         display: none;
     }
-}
+}*/ 
 @media screen and (max-width: 576px) {
     #indicadores table span {
         font-family: 'Ubuntu',sans-serif;

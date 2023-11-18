@@ -83,118 +83,117 @@
                                 <span class="fw-normal" id="HoraActual" href="">00:00:00</span>
                             </div>
                         </div>
-                        <section class="row">
-                            <!-- Indicadores -->
-                            <section id="indicadores" class="col-xxl-4">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-dark fw-bolder text-white h4">
-                                        <i class="fas fa-thermometer-half me-1"></i>
-                                        <span>Indicadores</span>
-                                    </div>
-                                    <div class="card-body row">
-                                        <div class="h5 fw-bolder text-center">
-                                            <div class="pb-3 text-primary">
+                        
+                        <!-- Indicadores -->
+                        <section id="indicadores" class="">
+                            <div class="card mb-4">
+                                <div class="card-header bg-dark fw-bolder text-white h4">
+                                    <i class="fas fa-thermometer-half me-1"></i>
+                                    <span>Indicadores</span>
+                                </div>
+                                <div class="card-body justify-content-center gap-4 row">
+                                    <div class="card border-primary col-sm-5 col-lg-3">
+                                        <div class="card-header bg-primary border-primary">
+                                            <div class="h3 text-light text-center mt-1">
                                                 <i class="fas fa-cloud-rain me-1"></i>
                                                 <span>Precipitación</span>
                                             </div>
-                                            <table class="table fw-normal">
-                                                <tbody>
-                                                  <tr>
-                                                    <td>
-                                                        <i class="fas fa-arrow-down me-1 text-danger"></i>
-                                                        <span id="precipitacionMinValue">Min 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-divide me-1 text-warning"></i>
-                                                        <span id="precipitacionPromValue">Prom 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-arrow-up me-1 text-success"></i>
-                                                        <span id="precipitacionMaxValue">Max 0.0 [mm]</span>
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </table>
                                         </div>
-                                        <div class="h5 fw-bolder text-center py-4">
-                                            <div class="pb-3 text-warning">
-                                                <i class="fas fa-sun me-1"></i>
-                                                <span>Rayos Ultravioletas</span>
+                                        <div class="card-body">
+                                            <div class="fs-4 fw-normal text-center">
+                                                <div>
+                                                    <i class="fas fa-arrow-down me-1 text-danger"></i>
+                                                    <span id="precipitacionMinValue">Min 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-divide me-1 text-warning"></i>
+                                                    <span id="precipitacionPromValue">Prom 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-arrow-up me-1 text-success"></i>
+                                                    <span id="precipitacionMaxValue">Max 0.0 [mm]</span>
+                                                </div>
                                             </div>
-                                            <table class="table fw-normal">
-                                                <tbody>
-                                                  <tr>
-                                                    <td>
-                                                        <i class="fas fa-arrow-down me-1 text-danger"></i>
-                                                        <span id="uvMinValue">Min 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-divide me-1 text-warning"></i>
-                                                        <span id="uvPromValue">Prom 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-arrow-up me-1 text-success"></i>
-                                                        <span id="uvMaxValue">Max 0.0 [mm]</span>
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </table>
                                         </div>
-                                        <div class="h5 fw-bolder text-center">
-                                            <div class="pb-3 text-secondary">
+                                    </div>
+                                    <div class="card border-warning col-sm-5 col-lg-3">
+                                        <div class="card-header bg-warning border-warning">
+                                            <div class="h3 text-dark text-center mt-1">
+                                                <i class="fas fa-sun me-1"></i>
+                                                <span>Rayos UV</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="fs-4 fw-normal text-center">
+                                                <div>
+                                                    <i class="fas fa-arrow-down me-1 text-danger"></i>
+                                                    <span id="uvMinValue">Min 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-divide me-1 text-warning"></i>
+                                                    <span id="uvPromValue">Prom 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-arrow-up me-1 text-success"></i>
+                                                        <span id="uvMaxValue">Max 0.0 [mm]</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card border-secondary col-sm-5 col-lg-3">
+                                        <div class="card-header bg-secondary border-secondary">
+                                            <div class="h3 text-light text-center mt-1">
                                                 <i class="fas fa-temperature-full me-1"></i>
                                                 <span>Temperatura</span>
                                             </div>
-                                            <table class="table fw-normal">
-                                                <tbody>
-                                                  <tr>
-                                                    <td>
-                                                        <i class="fas fa-arrow-down me-1 text-danger"></i>
-                                                        <span id="temperaturaMinValue">Min 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-divide me-1 text-warning"></i>
-                                                        <span id="temperaturaPromValue">Prom 0.0 [mm]</span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fas fa-arrow-up me-1 text-success"></i>
-                                                        <span id="temperaturaMaxValue">Max 0.0 [mm]</span>
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </table>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="fs-4 fw-normal text-center">
+                                                <div>
+                                                    <i class="fas fa-arrow-down me-1 text-danger"></i>
+                                                    <span id="temperaturaMinValue">Min 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-divide me-1 text-warning"></i>
+                                                    <span id="temperaturaPromValue">Prom 0.0 [mm]</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-arrow-up me-1 text-success"></i>
+                                                    <span id="temperaturaMaxValue">Max 0.0 [mm]</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </section>
-                            <!-- Indicadores -->
-
-                            <!-- Gráficos -->
-                            <section id="graficos" class="col-xxl-8">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-dark fw-bolder text-white h4">
-                                        <i class="fas fa-area-chart me-1"></i>
-                                        <span>Gráficos</span>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        <div>
-                                            <button id="btn-precipitacion" type="button" class="btn btn-primary fw-bolder">
-                                                <i class="fas fa-cloud-rain me-1"></i>
-                                                <span class="d-none d-sm-inline">Precipitación</span>
-                                            </button>
-                                            <button id="btn-uv" type="button" class="btn btn-warning fw-bolder">
-                                                <i class="fas fa-sun me-1"></i>
-                                                <span class="d-none d-sm-inline">Rayos Ultravioletas</span></button>
-                                            <button id="btn-temperatura" type="button" class="btn btn-secondary fw-bolder">
-                                                <i class="fas fa-temperature-full me-1"></i>
-                                                <span class="d-none d-sm-inline">Temperatura</span></button>
-                                        </div>
-                                        <canvas id="grafico" width="100%" height="33%"></canvas>
-                                    </div>
-                                </div>
-                            </section>
-                            <!-- Gráficos -->
+                            </div>
                         </section>
+                        <!-- Indicadores -->
+
+                        <!-- Gráficos -->
+                        <section id="graficos" class="">
+                            <div class="card mb-4">
+                                <div class="card-header bg-dark fw-bolder text-white h4">
+                                    <i class="fas fa-area-chart me-1"></i>
+                                    <span>Gráficos</span>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button id="btn-precipitacion" type="button" class="btn btn-primary fw-bolder">
+                                            <i class="fas fa-cloud-rain me-1"></i>
+                                            <span class="d-none d-md-inline">Precipitación</span>
+                                        </button>
+                                        <button id="btn-uv" type="button" class="btn btn-warning fw-bolder">
+                                            <i class="fas fa-sun me-1"></i>
+                                            <span class="d-none d-md-inline">Rayos UV</span></button>
+                                        <button id="btn-temperatura" type="button" class="btn btn-secondary fw-bolder">
+                                            <i class="fas fa-temperature-full me-1"></i>
+                                            <span class="d-none d-md-inline">Temperatura</span></button>
+                                    </div>
+                                    <canvas id="grafico" width="100%" height="30%"></canvas>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- Gráficos -->
 
                         <!-- Datos -->
                         <section id="pronostico" class="card mb-4">
@@ -229,12 +228,12 @@
                             <div class="card-body">
                                 <div class="col">
                                     <div id="monitoreo-section" class="card">
-                                        <div id="monitoreo-table" class="card-body  table-responsive-sm"></div>
+                                        <div id="monitoreo-table" class="card-body  table-responsive-md"></div>
                                     </div>
                                     <div id="monitoreo-footer">
                                         <div><span class="text-muted">Tomado de: 
                                             <a href="https://www.gestionderiesgos.gob.ec/monitoreo-de-inundaciones/" target="_blank"></a></span></div>
-                                        <div><span class="text-muted">Si no ve la sección de monitoreo, haga clic aquí y active su prueba CORS: 
+                                        <div><span class="text-muted">Si no ve la sección de monitoreo, haga clic en el link siguiente, active su prueba CORS y refresque la página: 
                                             <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"></a></span></div>
                                     </div>
                                 </div>
