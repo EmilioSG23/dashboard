@@ -1,8 +1,4 @@
 import {
-    tiempoArr, precipitacionArr, uvArr, temperaturaArr
-} from './static_data.js';
-
-import {
     ciudadesEcuador
 } from './cities.js';
 
@@ -192,7 +188,7 @@ let cargarIndicadores = async (ciudad) => {
 
 let calcularIndicador = (tiempo, datos) => {
     let temp = [];
-    for(let i=0;i<tiempoArr.length;i++)
+    for(let i=0;i<tiempo.length;i++)
         if(tiempo[i].includes(fechaActual()))
             temp.push(datos[i]);
 
@@ -252,7 +248,7 @@ let cargarGraficoPrecipitacion = async (ciudad) => {
             '&longitude='+ciudad.longitude.toString()+
             '&hourly=precipitation,precipitation_probability'+'&daily=precipitation_probability_max'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time];tiempo[1].push("")
     let datos = [responseJSON.hourly.precipitation,responseJSON.hourly.precipitation_probability,responseJSON.daily.precipitation_probability_max]
 
     let plotRef = document.getElementById('grafico');
@@ -309,7 +305,7 @@ let cargarGraficoUV = async (ciudad) => {
             '&longitude='+ciudad.longitude.toString()+
             '&hourly=uv_index,uv_index_clear_sky'+'&daily=uv_index_max,uv_index_clear_sky_max'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time];tiempo[1].push("")
     let datos = [responseJSON.hourly.uv_index,responseJSON.hourly.uv_index_clear_sky,responseJSON.daily.uv_index_max,responseJSON.daily.uv_index_clear_sky_max]
 
     let plotRef = document.getElementById('grafico');
@@ -365,7 +361,7 @@ let cargarGraficoTemperatura = async (ciudad) => {
             '&longitude='+ciudad.longitude.toString()+
             '&hourly=temperature_2m'+'&daily=temperature_2m_max,temperature_2m_min'+'&timezone=auto'
     let responseJSON = await responseJSONAsync(URL)
-    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time]
+    let tiempo = [responseJSON.hourly.time,responseJSON.daily.time];tiempo[1].push("")
     let datos = [responseJSON.hourly.temperature_2m,responseJSON.daily.temperature_2m_max,responseJSON.daily.temperature_2m_min]
 
     let plotRef = document.getElementById('grafico');
@@ -574,9 +570,7 @@ let mostrarDatos = (event) => {
     if (selectCiudad == "Seleccione ciudad"){
         boton.disabled = true
         return;
-    }else{
-        boton.disabled = false
-    }
+    }else{boton.disabled = false}
     boton.onclick = () =>{cargarDatosCiudad(selectProvincia, selectCiudad)}
 }
 
