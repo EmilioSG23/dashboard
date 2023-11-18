@@ -130,7 +130,7 @@ let actualizarDatos = () => {
 let actualizarIndicadoresGraficos = () =>{
     let hoy = new Date()
     let actualizarDate = new Date()
-    actualizarDate.setHours(0);actualizarDate.setMinutes(0);actualizarDate.setSeconds(0);actualizarDate.setMilliseconds(0)
+    actualizarDate.setHours(0);actualizarDate.setMinutes(0);actualizarDate.setSeconds(30);actualizarDate.setMilliseconds(0)
 
     if(hoy.getTime() == actualizarDate.getTime())
         location.reload()
@@ -143,7 +143,7 @@ let actualizarPronostico = () =>{
         return;
 
     let actualizarDate = new Date()
-    actualizarDate.setHours((actualizarDate.getHours()-(actualizarDate .getHours()%3)));actualizarDate.setMinutes(0);actualizarDate.setSeconds(0)
+    actualizarDate.setHours((actualizarDate.getHours()-(actualizarDate .getHours()%3)));actualizarDate.setMinutes(0);actualizarDate.setSeconds(45)
 
     if (lastUpdate<actualizarDate){
         console.log("Se actualizó pronóstico")
@@ -160,7 +160,7 @@ let actualizarMonitoreo = () => {
         return;
 
     let actualizarDate = new Date()
-    actualizarDate.setHours(7);actualizarDate.setMinutes(0);actualizarDate.setSeconds(0);
+    actualizarDate.setHours(7);actualizarDate.setMinutes(1);actualizarDate.setSeconds(0);
 
     if (lastUpdate<actualizarDate && hoy>actualizarDate){
         console.log("Se actualizó monitoreo")
