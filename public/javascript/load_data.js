@@ -418,7 +418,7 @@ let cargarPronostico = async (provincia, ciudad) => {
     let itemName = "Pronostico "+provincia.provincia + " - " + ciudad.name
     let cityStorage = localStorage.getItem(itemName);
 
-    if (cityStorage == null) {
+    if (cityStorage == null || !cityStorage.startsWith("<?xml")) {
         //API key
         let APIkey = '52ef10cd68238328de4f767883bcda7c';
         //let url = `https://api.openweathermap.org/data/2.5/forecast?q=${ciudad.name}&mode=xml&appid=${APIkey}`;
