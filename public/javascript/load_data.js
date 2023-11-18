@@ -2,6 +2,7 @@ import {
     ciudadesEcuador
 } from './cities.js';
 
+
 /* Utilidades */
 let responseJSONAsync = async (URL) => {
     let responseText;
@@ -229,7 +230,6 @@ let cargarTemperatura = (tiempo, datos) => {
 
 /* Carga de Gráficos Chart.js de una ciudad */
 let cargarGrafico = (ciudad) => {
-    console.log(grafico_activado)
     if(grafico_activado == "precipitacion")
         cargarGraficoPrecipitacion(ciudad)
     else if (grafico_activado == "uv")
